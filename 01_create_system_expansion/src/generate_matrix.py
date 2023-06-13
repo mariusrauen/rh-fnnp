@@ -239,12 +239,21 @@ def remove_water_from_processes(processes: list[CMProcess]) -> None:
                 del process.coproducts_coeff[water_index]
                 print("Removed water from a Process!")
 
-if __name__ == '__main__':
-    path = '../xlsx/reaction_extension_layer.xlsx'
-    output = f"{path.replace('.xlsx','_matrix.xlsx')}"
+def main(path: str, output:str) -> None:
+    '''Generate a matrix from the reference sheet xlsx. 
+
+       1. Generate CMProcesses containing reaction data. 
+       2. Remove water from processes.
+       3. Write excel file into xlsx folder.'''
+
     processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
     remove_water_from_processes(processes)
     matrix = generate_matrix_from_list_of_processes(processes)
     matrix.to_excel(output, index=None)
     print(output)
 
+
+if __name__ == '__main__':
+    path = '../xlsx/reaction_extension_layer.xlsx'
+    output = f"{path.replace('.xlsx','_matrix.xlsx')}"
+    main(path, output)
