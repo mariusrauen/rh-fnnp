@@ -9,10 +9,11 @@ def main(input_file_path, output_file_path):
     calc.carbon_content_check(matrix_table)
 
     #3) The mass of all raw materials and products is calculated based
-    #   on the stoichometric coefficents and normalized of 1kg product (mainflow).
+    #   on the stoichometric coefficents and normalized to 1kg product (mainflow).
     matrix_mass = calc.calculate_mass(matrix_table)
 
-    #4) A yield of 0.95% is considered for the reactions.
+    #4) A yield of 0.95% is considered for the reactions. Therefore we increased
+    #   the mass of the educts to compensate and still end up with 1kg product. 
     matrix_mass = calc.consider_yield_095(matrix_mass)
 
     #5) The energy demand is calculated according to Gendorf.

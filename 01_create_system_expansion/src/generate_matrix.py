@@ -8,6 +8,8 @@ from dataclasses import dataclass
 
 @dataclass
 class CMProcess:
+    """Captures all necessary information for a single reaction process needed for 
+       initial matrix generation."""
     process_id: int
     product: str
     product_coeff: float
@@ -244,7 +246,9 @@ def main(path: str, output:str) -> None:
 
        1. Generate CMProcesses containing reaction data. 
        2. Remove water from processes.
-       3. Write excel file into xlsx folder.'''
+       3. Write excel file into xlsx folder.
+
+       '''
 
     processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
     remove_water_from_processes(processes)
