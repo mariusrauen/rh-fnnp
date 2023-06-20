@@ -230,16 +230,10 @@ def remove_water_from_processes(processes: list[CMProcess]) -> None:
     for process in processes:
         if 'water' in process.coproducts:
             water_index = process.coproducts.index('water')
-            process.coproducts.remove('water')
+            del process.coproducts[water_index]
             del process.coproducts_coeff[water_index]
+            del process.coproducts_raw_material_id[water_index]
             print("Removed water from a Process!")
-    print("Round 1")
-    for process in processes:
-            if 'water' in process.coproducts:
-                water_index = process.coproducts.index('water')
-                process.coproducts.remove('water')
-                del process.coproducts_coeff[water_index]
-                print("Removed water from a Process!")
 
 def main(path: str, output:str) -> None:
     '''Generate a matrix from the reference sheet xlsx. 
@@ -258,6 +252,6 @@ def main(path: str, output:str) -> None:
 
 
 if __name__ == '__main__':
-    path = '../xlsx/reaction_extension_layer.xlsx'
+    path = '../xlsx/20230620_reaction_extension_layer.xlsx'
     output = f"{path.replace('.xlsx','_matrix.xlsx')}"
     main(path, output)
