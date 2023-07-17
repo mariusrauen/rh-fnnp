@@ -42,7 +42,7 @@ def carbon_content_check(matrix_table: pd.DataFrame) -> None:
     carbon = carbon_content_check.groupby(by=['process_id']).sum(numeric_only=True)
     carbon = carbon.reset_index()
     carbon.to_excel('../xlsx/carbon.xlsx')
-    carbon_problem= carbon[carbon['carbon_content']>0]
+    carbon_problem= carbon[carbon['carbon_content']!=0]
     carbon_problem= pd.merge(processes, carbon_problem[['process_id', 'carbon_content']], on='process_id')
     if carbon_problem.empty:
         print("Carbon content check was carried out successfully!")
