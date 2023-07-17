@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import math
 import xlsxwriter
 import pyodbc
 import pyarrow.parquet as pq
@@ -28,16 +29,11 @@ def load_prepare_data(input_file_path: str) -> pd.DataFrame:
 
 def carbon_content_check(matrix_table: pd.DataFrame) -> None:
     '''Check if carbon content is correct and write it to a excel sheet.'''
-    carbon_content_check = matrix_table[matrix_table['chemical formular'].str.contains('C', na=False)]
-    carbon_content = carbon_content_check['chemical formular'].str.split('([A-Z][^A-Z]*)', expand=True)
-    carbon_content = carbon_content[1].str.split('C', n=2, expand=True)
-    carbon_content = carbon_content.replace(r'^\s*$', np.nan, regex=True).fillna(1)
-    carbon_content_check = pd.concat([carbon_content_check, carbon_content[1]], axis=1)
-    carbon_content_check = carbon_content_check[~carbon_content_check[1].str.contains('l', na=False)]
-    carbon_content_check = carbon_content_check[~carbon_content_check[1].str.contains('r', na=False)]
-    carbon_content_check = carbon_content_check[~carbon_content_check[1].str.contains('a', na=False)]
-    carbon_content_check = carbon_content_check[~carbon_content_check[1].str.contains('u', na=False)]
-    carbon_content_check['carbon_content'] = carbon_content_check.coefficient*carbon_content_check[1].astype(int)
+    carbon_content_tmp = matrix_table['chemical formular'].str.extract(r'C(\d+)|(C[A-Z])', expand=True)
+    carbon_content_s1 = carbon_content_tmp[1].fillna("0").map(lambda x: 0 if x=="0" else 1)
+    carbon_content_s2 = carbon_content_tmp[0].fillna(0).astype(int)+carbon_content_s1
+    carbon_content_check = pd.concat([matrix_table, carbon_content_s2], axis=1)
+    carbon_content_check['carbon_content'] = carbon_content_check.coefficient*carbon_content_s2.astype(int)
     carbon_content_check.to_excel('../xlsx/carbon_content.xlsx')
     carbon = carbon_content_check.groupby(by=['process_id']).sum(numeric_only=True)
     carbon = carbon.reset_index()
@@ -45,10 +41,10 @@ def carbon_content_check(matrix_table: pd.DataFrame) -> None:
     carbon_problem= carbon[carbon['carbon_content']!=0]
     carbon_problem= pd.merge(processes, carbon_problem[['process_id', 'carbon_content']], on='process_id')
     if carbon_problem.empty:
-        print("Carbon content check was carried out successfully!")
+        print("Carbon content check was  carried out successfully!")
     else:
         print(carbon_problem)
-        print("The carbon balance of the process does not add up.")
+        raise RuntimeError("The carbon balance of the process does not add up.")
 
 def calculate_mass(matrix_table: pd.DataFrame) -> pd.DataFrame:
     '''Calculate the mass.'''
