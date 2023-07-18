@@ -29,6 +29,13 @@ def load_prepare_data(input_file_path: str) -> pd.DataFrame:
 
 def carbon_content_check(matrix_table: pd.DataFrame) -> None:
     '''Check if carbon content is correct and write it to a excel sheet.'''
+    # The regular expression captures to groups: 
+    # 1) uppercase C's with a at least one number f, C(\d+) OR
+    # 2) uppercase C's with another uppercase letter following (C[A-Z]).
+    #
+    # These are captured by the str.extract method and return a dataframe with two columns representing both cases
+    # In the first case, if the regex finds no match, no carbon is present or the second case is matched
+    # Therefore we add both series together to get the final carbon content.
     carbon_content_tmp = matrix_table['chemical formular'].str.extract(r'C(\d+)|(C[A-Z])', expand=True)
     carbon_content_s1 = carbon_content_tmp[1].fillna("0").map(lambda x: 0 if x=="0" else 1)
     carbon_content_s2 = carbon_content_tmp[0].fillna(0).astype(int)+carbon_content_s1
