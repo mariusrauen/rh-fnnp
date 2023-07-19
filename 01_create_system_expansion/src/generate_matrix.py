@@ -239,16 +239,16 @@ def remove_water_from_processes(processes: list[CMProcess]) -> None:
             del process.coproducts_raw_material_id[water_index]
             logging.debug("Removed water from a Process!")
 
-def write_frame_into_excelsheet(filename: Path, sheetname: str, dataframe: pd.DataFrame) -> None:
-    with pd.ExcelWriter(filename, engine='openpyxl', mode='a') as writer: 
-        workBook = writer.book
-        try:
-            workBook.remove(workBook[sheetname])
-        except:
-            print("Worksheet does not exist")
-        finally:
-            dataframe.to_excel(writer, sheet_name=sheetname,index=None)
-
+# def write_frame_into_excelsheet(filename: Path, sheetname: str, dataframe: pd.DataFrame) -> None:
+#     with pd.ExcelWriter(filename, engine='openpyxl', mode='a', data_only=True) as writer: 
+#         workBook = writer.book
+#         try:
+#             workBook.remove(workBook[sheetname])
+#         except:
+#             print("Worksheet does not exist")
+#         finally:
+#             dataframe.to_excel(writer, sheet_name=sheetname,index=None)
+#
 def main(path: Path | str) -> None:
     '''Generate a matrix from the reference sheet xlsx. 
 
@@ -267,7 +267,8 @@ def main(path: Path | str) -> None:
     # Copy file to avoid data loss 
     copyfile(INPUT_PATH, INPUT_PATH.with_stem("reaction_extension_layer_inputcopy"))
     # Add matrix to original input excel
-    write_frame_into_excelsheet(filename=INPUT_PATH, sheetname='matrix_table', dataframe=matrix)
+    # write_frame_into_excelsheet(filename=INPUT_PATH, sheetname='matrix_table', dataframe=matrix)
+    matrix.to_excel(INPUT_PATH.with_stem("reaction_extension_layer_matrix"), sheet_name='matrix_table')
 
 if __name__ == '__main__':
     INPUT_PATH = Path("../xlsx/reaction_extension_layer.xlsx")
