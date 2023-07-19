@@ -1,4 +1,5 @@
 import calc_automated_extension_layer as calc
+from pathlib import Path
 
 def main(input_file_path, output_file_path):
     """Get System expansion and matrix table mass"""
@@ -33,5 +34,7 @@ def main(input_file_path, output_file_path):
 
 
 if __name__ == "__main__":
-    main(input_file_path = 'reaction_extension_layer.xlsx',
-         output_file_path = 'SYSTEMEXPANSION.xlsx' )
+    INPUT_FILE_PATH = Path("../xlsx/reaction_extension_layer.xlsx")
+    OUTPUT_FILE_PATH = Path("../xlsx/SYSTEMEXPANSION.xlsx") 
+    main(input_file_path = INPUT_FILE_PATH,
+         output_file_path = OUTPUT_FILE_PATH)

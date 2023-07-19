@@ -5,6 +5,7 @@ import numpy as np
 import requests
 import logging
 from dataclasses import dataclass 
+from pathlib import Path
 
 @dataclass
 class CMProcess:
@@ -252,6 +253,6 @@ def main(path: str, output:str) -> None:
 
 
 if __name__ == '__main__':
-    path = '../xlsx/20230620_reaction_extension_layer.xlsx'
-    output = f"{path.replace('.xlsx','_matrix.xlsx')}"
-    main(path, output)
+    PATH = Path("../xlsx/reaction_extension_layer.xlsx")
+    OUTPUT = Path("../xlsx/reaction_extension_layer_matrix.xlsx")
+    main(PATH, OUTPUT)
