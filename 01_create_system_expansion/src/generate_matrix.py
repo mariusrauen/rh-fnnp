@@ -6,6 +6,8 @@ import requests
 import logging
 from dataclasses import dataclass 
 from pathlib import Path
+from typing import Union
+from shutil import copyfile 
 
 @dataclass
 class CMProcess:
@@ -58,13 +60,13 @@ def get_compound_info(cas_id):
 
         # Send the GET request to the CAS API
         response = requests.get(base_url + endpoint + cas_id)
-        print(base_url + endpoint + cas_id)
+        logging.debug(base_url + endpoint + cas_id)
         # Check if the request was successful
         if response.status_code == 200:
             data = response.json()
             return data
         else:
-            print("Error:", response.status_code)
+            logging.info("Error:", response.status_code)
             return None
   
 def get_chemical_details(cas_api_data):
@@ -128,7 +130,7 @@ def get_all_mols(df: pd.DataFrame)->list[str]:
     flatten_list = [mol for mol in flatten_list_with_nan if str(mol)!='nan']
     return list(set(flatten_list))
 
-def generate_processes_list_from_reference_sheet_and_raw_material_id(path) -> list[CMProcess]:
+def generate_processes_list_from_reference_sheet_and_raw_material_id(path: Path) -> list[CMProcess]:
     """This Function generates a list that contains instances of the CMProcess class.
     
     Keyword arguments:
@@ -197,9 +199,9 @@ def generate_processes_list_from_reference_sheet_and_raw_material_id(path) -> li
                   educts=educts, educts_coeff=educts_coeff, educts_raw_material_id=educts_raw_material_id,
                   coproducts=coproducts, coproducts_coeff=coproducts_coeff, coproducts_raw_material_id=coproducts_raw_material_id))
                   
-        print(product, process_id)
-        print(educts,educts_coeff,educts_raw_material_id)
-        print(coproducts,coproducts_coeff,coproducts_raw_material_id)
+        logging.DEBUG(product, process_id)
+        logging.DEBUG(educts,educts_coeff,educts_raw_material_id)
+        logging.DEBUG(coproducts,coproducts_coeff,coproducts_raw_material_id)
     
     return processes 
 
@@ -209,16 +211,17 @@ def generate_matrix_from_list_of_processes(processes: list[CMProcess]) -> pd.Dat
     for process in processes:
         matrix = pd.concat([matrix, pd.DataFrame({'raw_material_id':process.product_raw_material_id,'process_id':process.process_id,'coefficient':process.product_coeff}, index=[0])])
         if len(process.coproducts)==1:
-            print(process.process_id, process.coproducts)
+            logging.DEBUG(process.process_id, process.coproducts)
             matrix = pd.concat([matrix, pd.DataFrame({'raw_material_id':process.coproducts_raw_material_id[0],'process_id':process.process_id,'coefficient':process.coproducts_coeff[0]}, index=[0])])
         if len(process.coproducts)>1:
             for idx, coproduct in enumerate(process.coproducts):
                 matrix = pd.concat([matrix, pd.DataFrame({'raw_material_id':process.coproducts_raw_material_id[idx],'process_id':process.process_id,'coefficient':process.coproducts_coeff[idx]}, index=[0])])
         if len(process.educts)==1:
-            print(process.process_id, process.educts)
+            logging.DEBUG(process.process_id, process.educts)
             matrix = pd.concat([matrix, pd.DataFrame({'raw_material_id':process.educts_raw_material_id[0],'process_id':process.process_id,'coefficient':process.educts_coeff[0]}, index=[0])])
         if len(process.educts)>1:
             for idx, coproduct in enumerate(process.educts):
+                logging.DEBUG(process.process_id, process.educts)
                 matrix = pd.concat([matrix, pd.DataFrame({'raw_material_id':process.educts_raw_material_id[idx],'process_id':process.process_id,'coefficient':process.educts_coeff[idx]}, index=[0])])   
     return matrix
 
@@ -234,9 +237,19 @@ def remove_water_from_processes(processes: list[CMProcess]) -> None:
             del process.coproducts[water_index]
             del process.coproducts_coeff[water_index]
             del process.coproducts_raw_material_id[water_index]
-            print("Removed water from a Process!")
+            logging.debug("Removed water from a Process!")
 
-def main(path: str, output:str) -> None:
+def write_frame_into_excelsheet(filename: Path, sheetname: str, dataframe: pd.DataFrame) -> None:
+    with pd.ExcelWriter(filename, engine='openpyxl', mode='a') as writer: 
+        workBook = writer.book
+        try:
+            workBook.remove(workBook[sheetname])
+        except:
+            print("Worksheet does not exist")
+        finally:
+            dataframe.to_excel(writer, sheet_name=sheetname,index=None)
+
+def main(path: Path | str) -> None:
     '''Generate a matrix from the reference sheet xlsx. 
 
        1. Generate CMProcesses containing reaction data. 
@@ -247,12 +260,15 @@ def main(path: str, output:str) -> None:
 
     processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
     remove_water_from_processes(processes)
-    matrix = generate_matrix_from_list_of_processes(processes)
-    matrix.to_excel(output, index=None)
-    print(output)
-
+    try: 
+        matrix = generate_matrix_from_list_of_processes(processes)
+    except: 
+        raise RuntimeError("There is something wrong with the matrix generation!")
+    # Copy file to avoid data loss 
+    copyfile(INPUT_PATH, INPUT_PATH.with_stem("reaction_extension_layer_inputcopy"))
+    # Add matrix to original input excel
+    write_frame_into_excelsheet(filename=INPUT_PATH, sheetname='matrix_table', dataframe=matrix)
 
 if __name__ == '__main__':
-    PATH = Path("../xlsx/reaction_extension_layer.xlsx")
-    OUTPUT = Path("../xlsx/reaction_extension_layer_matrix.xlsx")
-    main(PATH, OUTPUT)
+    INPUT_PATH = Path("../xlsx/reaction_extension_layer.xlsx")
+    main(INPUT_PATH)

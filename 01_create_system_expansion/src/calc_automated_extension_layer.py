@@ -144,4 +144,4 @@ def create_system_expansion(matrixA: pd.DataFrame, output_file_path: str) -> Non
                     matrixA.to_excel(writer, sheet_name="SUMMARY A", index=False)
                     matrixB.to_excel(writer, sheet_name="SUMMARY B", index=False)
                     matrixF.to_excel(writer, sheet_name="SUMMARY F", index=False)
-    print("Systemexpansion table is succsessfully created!")
+    print("Systemexpansion table is successfully created!")
