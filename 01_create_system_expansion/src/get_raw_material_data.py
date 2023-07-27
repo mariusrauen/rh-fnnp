@@ -6,12 +6,8 @@ import requests
 import logging
 from dataclasses import dataclass 
 from pathlib import Path
-<<<<<<< HEAD
-logging.getLogger().setLevel(logging.INFO)
-=======
 from typing import Union
 from shutil import copyfile 
->>>>>>> 3aec04439a16c941436234d6dca2dfe92252dacd
 
 @dataclass
 class CMProcess:
@@ -80,7 +76,7 @@ def get_chemical_details(cas_api_data):
     else:
         return {'name':cas_api_data['name'].lower(), 'CAS-Nr.':cas_api_data['rn'],'chemical formular':cas_api_data['molecularFormula'].replace('<sub>','').replace('</sub>',''),'molecular mass':cas_api_data['molecularMass'], 'SMILES':cas_api_data['canonicalSmile']}
 
-def get_cas_data(queries):
+def get_cas_data(queries: list[str]) -> pd.DataFrame:
     """Given a list of names this function returns a pandas dataframe containing relevant chemical data."""
     df = pd.DataFrame()
     for query in queries:
@@ -243,37 +239,6 @@ def remove_water_from_processes(processes: list[CMProcess]) -> None:
             del process.coproducts_raw_material_id[water_index]
             logging.debug("Removed water from a Process!")
 
-<<<<<<< HEAD
-    
-def checkup_on_included_chemicals(included_chemicals_master_file: Path, reaction_extension_layer_file: Path) -> None:
-    """This function checks, if the main flows were already added in the master Included chemicals file."""
-    reaction_ext = pd.read_excel(reaction_extension_layer_file, sheet_name=None)
-    incl_chem = pd.read_excel(included_chemicals_master_file, sheet_name=None)
-    all_included_chemicals = pd.concat([incl_chem['LAYER1'], incl_chem['LAYER2'], incl_chem['LAYER3'], incl_chem['ECOINVENT']], axis=0)['Included chemicals'].values
-    for mainflow_name in reaction_ext['process_id'].loc[:,"main flow"].values:
-        if mainflow_name in all_included_chemicals:
-            logging.warning(f"{mainflow_name} already exists in Included_Chemicals.xlsx")
-    mainflows_with_cas = pd.merge(reaction_ext['process_id'].loc[:,["main flow"]], reaction_ext['raw_material_id'].loc[:,['name', 'CAS-Nr.']], left_on='main flow', right_on='name', how='left')
-    all_cas = pd.concat([incl_chem['LAYER1'], incl_chem['LAYER2'], incl_chem['LAYER3'], incl_chem['ECOINVENT']], axis=0).CAS.values
-    for cas_id in mainflows_with_cas['CAS-Nr.'].values:
-        if cas_id in all_cas:
-            logging.warning(f"{cas_id} is already in Included_Chemicals.xlsx")
-    
-def checkup_on_meta_data_flows(meta_data_flows_master_file: Path, reaction_extension_layer_file: Path) -> None:
-    """This function checks if all materials mentioned in the added reaction are mentioned in the meta_data_flows_master_file"""
-    meta_data_master = pd.read_excel(meta_data_flows_master_file) # First Sheet is taken
-    reaction_ext = pd.read_excel(reaction_extension_layer_file, sheet_name=None)
-    for name in reaction_ext['raw_material_id'].loc[2:,['raw materials']].values: # do not include electricity and thermal energy
-        if name not in meta_data_master['name'].values:
-            logging.warning(f"{name} is not in the raw materials")
-    for casnr in reaction_ext['raw_material_id'].loc[2:,['CAS-Nr.']].values:
-        if casnr not in meta_data_master['CAS-Nr.'].values:
-            logging.warning(f"{casnr} is not in the raw materials")
-
-
-
-def main(path: str, output:str) -> None:
-=======
 # def write_frame_into_excelsheet(filename: Path, sheetname: str, dataframe: pd.DataFrame) -> None:
 #     with pd.ExcelWriter(filename, engine='openpyxl', mode='a', data_only=True) as writer: 
 #         workBook = writer.book
@@ -285,41 +250,20 @@ def main(path: str, output:str) -> None:
 #             dataframe.to_excel(writer, sheet_name=sheetname,index=None)
 #
 def main(path: Path | str) -> None:
->>>>>>> 3aec04439a16c941436234d6dca2dfe92252dacd
-    '''Generate a matrix from the reference sheet xlsx. 
+    pass
+    # processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
+    # remove_water_from_processes(processes)
+    # try: 
+    #     matrix = generate_matrix_from_list_of_processes(processes)
+    # except: 
+    #     raise RuntimeError("There is something wrong with the matrix generation!")
+    # # Copy file to avoid data loss 
+    # copyfile(INPUT_PATH, INPUT_PATH.with_stem("reaction_extension_layer_inputcopy"))
+    # # Add matrix to original input excel
+    # # write_frame_into_excelsheet(filename=INPUT_PATH, sheetname='matrix_table', dataframe=matrix)
+    # matrix.to_excel(INPUT_PATH.with_stem("reaction_extension_layer_matrix"), sheet_name='matrix_table')
 
-       1. Generate CMProcesses containing reaction data. 
-       2. Remove water from processes.
-       3. Write excel file into xlsx folder.
-
-       '''
-    included_chemicals_master = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/IncludedChemicals - Kopie.xlsx"
-    meta_data_flows_master_file = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/00_inputData/meta_data_flows.xlsx"
-    checkup_on_included_chemicals(Path(included_chemicals_master), Path(path))
-    checkup_on_meta_data_flows(Path(meta_data_flows_master_file), Path(path))
-    processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
-    remove_water_from_processes(processes)
-<<<<<<< HEAD
-    matrix = generate_matrix_from_list_of_processes(processes)
-    matrix.to_excel(output, index=None)
-    print(output)
-
-if __name__ == '__main__':
-    path = '../xlsx/reaction_extension_layer.xlsx'
-    output = f"{path.replace('.xlsx','_matrix.xlsx')}"
-    main(path, output)
-=======
-    try: 
-        matrix = generate_matrix_from_list_of_processes(processes)
-    except: 
-        raise RuntimeError("There is something wrong with the matrix generation!")
-    # Copy file to avoid data loss 
-    copyfile(INPUT_PATH, INPUT_PATH.with_stem("reaction_extension_layer_inputcopy"))
-    # Add matrix to original input excel
-    # write_frame_into_excelsheet(filename=INPUT_PATH, sheetname='matrix_table', dataframe=matrix)
-    matrix.to_excel(INPUT_PATH.with_stem("reaction_extension_layer_matrix"), sheet_name='matrix_table')
 
 if __name__ == '__main__':
     INPUT_PATH = Path("../xlsx/reaction_extension_layer.xlsx")
     main(INPUT_PATH)
->>>>>>> 3aec04439a16c941436234d6dca2dfe92252dacd
