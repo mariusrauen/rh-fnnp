@@ -6,12 +6,9 @@ import requests
 import logging
 from dataclasses import dataclass 
 from pathlib import Path
-<<<<<<< HEAD
 logging.getLogger().setLevel(logging.INFO)
-=======
 from typing import Union
 from shutil import copyfile 
->>>>>>> 3aec04439a16c941436234d6dca2dfe92252dacd
 
 @dataclass
 class CMProcess:
@@ -243,8 +240,6 @@ def remove_water_from_processes(processes: list[CMProcess]) -> None:
             del process.coproducts_raw_material_id[water_index]
             logging.debug("Removed water from a Process!")
 
-<<<<<<< HEAD
-    
 def checkup_on_included_chemicals(included_chemicals_master_file: Path, reaction_extension_layer_file: Path) -> None:
     """This function checks, if the main flows were already added in the master Included chemicals file."""
     reaction_ext = pd.read_excel(reaction_extension_layer_file, sheet_name=None)
@@ -271,9 +266,7 @@ def checkup_on_meta_data_flows(meta_data_flows_master_file: Path, reaction_exten
             logging.warning(f"{casnr} is not in the raw materials")
 
 
-
 def main(path: str, output:str) -> None:
-=======
 # def write_frame_into_excelsheet(filename: Path, sheetname: str, dataframe: pd.DataFrame) -> None:
 #     with pd.ExcelWriter(filename, engine='openpyxl', mode='a', data_only=True) as writer: 
 #         workBook = writer.book
@@ -285,7 +278,6 @@ def main(path: str, output:str) -> None:
 #             dataframe.to_excel(writer, sheet_name=sheetname,index=None)
 #
 def main(path: Path | str) -> None:
->>>>>>> 3aec04439a16c941436234d6dca2dfe92252dacd
     '''Generate a matrix from the reference sheet xlsx. 
 
        1. Generate CMProcesses containing reaction data. 
@@ -299,16 +291,11 @@ def main(path: Path | str) -> None:
     checkup_on_meta_data_flows(Path(meta_data_flows_master_file), Path(path))
     processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
     remove_water_from_processes(processes)
-<<<<<<< HEAD
-    matrix = generate_matrix_from_list_of_processes(processes)
-    matrix.to_excel(output, index=None)
-    print(output)
 
 if __name__ == '__main__':
     path = '../xlsx/reaction_extension_layer.xlsx'
     output = f"{path.replace('.xlsx','_matrix.xlsx')}"
     main(path, output)
-=======
     try: 
         matrix = generate_matrix_from_list_of_processes(processes)
     except: 
@@ -322,4 +309,3 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     INPUT_PATH = Path("../xlsx/reaction_extension_layer.xlsx")
     main(INPUT_PATH)
->>>>>>> 3aec04439a16c941436234d6dca2dfe92252dacd
