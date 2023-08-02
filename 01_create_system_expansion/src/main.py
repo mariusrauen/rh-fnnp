@@ -1,7 +1,7 @@
 import calc_automated_extension_layer as calc
 from pathlib import Path
 
-def main(input_file_path, output_file_path):
+def main(input_file_path: Path, output_file_path: Path):
     """Get System expansion and matrix table mass"""
     #1.) Load all data from the reactions the excel sheet.
     matrix_table = calc.load_prepare_data(input_file_path)

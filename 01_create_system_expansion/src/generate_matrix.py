@@ -266,7 +266,6 @@ def checkup_on_meta_data_flows(meta_data_flows_master_file: Path, reaction_exten
             logging.warning(f"{casnr} is not in the raw materials")
 
 
-def main(path: str, output:str) -> None:
 # def write_frame_into_excelsheet(filename: Path, sheetname: str, dataframe: pd.DataFrame) -> None:
 #     with pd.ExcelWriter(filename, engine='openpyxl', mode='a', data_only=True) as writer: 
 #         workBook = writer.book
@@ -280,11 +279,11 @@ def main(path: str, output:str) -> None:
 def main(path: Path | str) -> None:
     '''Generate a matrix from the reference sheet xlsx. 
 
-       1. Generate CMProcesses containing reaction data. 
-       2. Remove water from processes.
-       3. Write excel file into xlsx folder.
+    1. Generate CMProcesses containing reaction data. 
+    2. Remove water from processes.
+    3. Write excel file into xlsx folder.
 
-       '''
+    '''
     included_chemicals_master = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/IncludedChemicals - Kopie.xlsx"
     meta_data_flows_master_file = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/00_inputData/meta_data_flows.xlsx"
     checkup_on_included_chemicals(Path(included_chemicals_master), Path(path))
