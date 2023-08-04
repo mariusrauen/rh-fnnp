@@ -5,6 +5,7 @@
 # % Edits and Responsibility: Laura.Stellner@carbon-minds.com
 from pathlib import Path
 import logging
+import xlwings as xw
 # Define Path Variables
 #working_path = Path().cwd()
 working_path = Path("/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/04_simplifiedExtensionLayer")
@@ -65,7 +66,23 @@ for file in file_list:
 # for i = 1:length(file_list)
 #     % read file 
 #     [~,~,file] = xlsread(fullfile(pathInput,'dummy_IHS\',file_list(i).name));
-#     
+#[num,txt,raw] = xlsread('myExample.xlsx')
+# num =
+#      1     2     3
+#      4     5   NaN
+#      7     8     9
+#
+# txt = 
+#     'First'    'Second'    'Third'
+#     ''         ''          ''     
+#     ''         ''          'x'    
+#
+# raw = 
+#     'First'    'Second'    'Third'
+#     [    1]    [     2]    [    3]
+#     [    4]    [     5]    'x'    
+#     [    7]    [     8]    [    9]
+# #     
 #     % get process
 #     process_list(i).streams = get_streams(file);
 #     process_list(i).costs = get_costs(file);

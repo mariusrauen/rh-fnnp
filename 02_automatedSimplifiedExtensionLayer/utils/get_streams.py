@@ -1,9 +1,43 @@
 # This is a conversion of the matlab functions for database generation
+import xlwings as xw
+import re
+from utils.excel_interaction import read_from_excel
+@dataclass
+class Stream:
+    name: tuple[str]
+    cost: tuple[float]
+    cost_unit: tuple[str]
+    amount: tuple[float]
+    amount_unit: tuple[str]
+    cost_per_kg: tuple[float]
+    sclass: tuple[int] 
 
-def get_streams(file: Path) -> Streams:
-
-
-
+def get_streams(file: Path) -> list(Streams):
+    string = read_from_excel(file, 4,1)
+    # Find the main product name 
+    main_name_search = re.search(r"Product: (.*?),", string)
+    if main_name_search:
+        main_name = main_name_search.group(0) # Returns the first match of Regex 
+    else:
+        raise(RuntimeError('The regex search was not successful.'))
+    # Find the main product's price. If it does not exist, define it with nan$/kg
+    price_with_unit_search = re.search(r"Price: (.*?),", string) # Look for words after "Price:" until ","
+    if price_with_unit_search:
+        price_with_unit = main_name_search.group(0) # Returns the first match of Regex 
+        main_cost = price_with_unit.split(' ')[0]
+        main_cost_unit = price_with_unit.split(' ')[1]
+    else:
+        main_cost = np.nan
+        main_cost_unit = "$/kg"
+    # Define main product amount
+    main_amount = 1
+    # Define main product unit
+    string2 = read_from_excel(file, 6,4)
+    main_amount_unit_search = re.search(r"per (.*$)") # Look for everything behind "per"
+    if main_amount_unit_search:
+        main_amount_unit = main_amount_unit_search.group(0)
+    else:
+        raise RuntimeError("Something is wrong with the regex for searching the main amount unit!")
 
 # function streams = get_streams(file)
 # %% Function to extract the in/output sterams from the IHS ecxel file
