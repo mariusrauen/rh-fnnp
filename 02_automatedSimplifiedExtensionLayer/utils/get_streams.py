@@ -1,7 +1,13 @@
 # This is a conversion of the matlab functions for database generation
-import xlwings as xw
+from pprint import pprint
+import numpy as np
+import pandas as pd
 import re
-from utils.excel_interaction import read_from_excel
+from dataclasses import dataclass
+from pathlib import Path
+import logging
+#from utils.convert_units import convert_units
+
 @dataclass
 class Stream:
     name: tuple[str]
@@ -10,11 +16,90 @@ class Stream:
     amount: tuple[float]
     amount_unit: tuple[str]
     cost_per_kg: tuple[float]
-    sclass: tuple[int] 
+    class_: tuple[int] = 1 
 
-def get_streams(file: Path) -> list(Streams):
-    string = read_from_excel(file, 4,1)
-    # Find the main product name 
+def convert_units(streams: list[Stream]) -> None:
+    """This normalizes the units of the input streams, which are generated with the get_streams function."""
+    for stream in streams:
+        # First convert the mass amount unit
+        match stream.amount_unit:
+            case 'TONNE':
+                stream.amount = stream.amount*1E3
+                stream.amount_unit = 'kg'
+                stream.unit_type = 'Mass'
+            case 'G':
+                stream.amount = stream.amount/1E3
+                stream.amount_unit = 'kg'
+                stream.unit_type = 'Mass'
+            case 'M3':
+                stream.amount_unit = 'Nm3'
+                stream.unit_type = 'Volumen'
+            case 'MNM3':
+                stream.amount_unit = 'Nm3'
+                stream.amount = stream.amount*1e3
+                stream.unit_type = 'Volumen'
+            case 'NM3':
+                stream.amount_unit = 'Nm3'
+                stream.unit_type = 'Volumen'
+            case 'KWH':
+                stream.amount = stream.amount*3.6 # convert KWH to MJ
+                stream.amount_unit = 'MJ'
+                stream.unit_type = 'Energy'
+            case 'EA':
+                stream.amount = stream.amount # Unit is unknown does not appear in IHS Documentation
+                stream.amount_unit = 'pcs'
+                stream.unit_type = 'Pieces'
+            case 'MMCAL':
+                stream.amount = stream.amount*4.187 # convert MMCAL to MJ
+                stream.amount_unit = 'MJ'
+                stream.unit_type = 'Energy'
+            case pd.isna:
+                    pass
+            case _:
+                logging.info(f'Amount Unit unknown: {stream.amount_unit}')
+                stream.unit_type = 'Unknowen'
+        # Now alter the cost_unit of the Streams
+        match stream.cost_unit:
+             case 'Ôö¼├│/KG':
+                stream.cost_unit = '$/KG'
+                stream.cost = stream.cost/100
+             case 'Ôö¼├│/G':
+                stream.cost_unit = '$/KG'
+                stream.cost = stream.cost/100*1000
+             case '$/kg':
+                stream.cost_unit = '$/KG'
+             case 'Ôö¼├│/EA':
+                stream.cost_unit = '$/EA'
+                stream.cost = stream.cost/100
+             case 'Ôö¼├│/TONNE':
+                stream.cost_unit = '$/KG'
+                stream.cost = stream.cost/1000/100
+             case 'Ôö¼├│/M3':
+                stream.cost_unit = '$/NM3'
+                stream.cost = stream.cost/100
+             case 'Ôö¼├│/NM3':
+                stream.cost_unit = '$/NM3'
+                stream.cost = stream.cost/100
+             case 'Ôö¼├│/KWH':
+                stream.cost_unit = '$/MJ'
+                stream.cost = stream.cost/3.6/100
+             case 'Ôö¼├│/MMCAL':
+                stream.cost_unit = '$/MJ'
+                stream.cost = stream.cost/4.187/100
+             case pd.isna:
+                pass
+             case _:
+                logging.info(f'Cost Unit unknown: {stream.cost_unit}')
+    ## set the main stream to 1
+    norm_factor = 1 / streams[0].amount
+    for stream in streams:
+        stream.amount = stream.amount * norm_factor
+
+def get_streams(file: Path) -> list[Stream]:
+    streams: list[Stream] = []
+    first_column_s = pd.read_excel(file, sheet_name=0).iloc[:,0]
+    string = first_column_s[2]
+    # Find the main product name. If it can not be found raise an error.
     main_name_search = re.search(r"Product: (.*?),", string)
     if main_name_search:
         main_name = main_name_search.group(0) # Returns the first match of Regex 
@@ -23,155 +108,92 @@ def get_streams(file: Path) -> list(Streams):
     # Find the main product's price. If it does not exist, define it with nan$/kg
     price_with_unit_search = re.search(r"Price: (.*?),", string) # Look for words after "Price:" until ","
     if price_with_unit_search:
-        price_with_unit = main_name_search.group(0) # Returns the first match of Regex 
-        main_cost = price_with_unit.split(' ')[0]
-        main_cost_unit = price_with_unit.split(' ')[1]
+        price_with_unit = price_with_unit_search.group(0) # Returns the first match of Regex 
+        main_cost = price_with_unit.split(' ')[1]
+        main_cost_unit = price_with_unit.split(' ')[2]
     else:
         main_cost = np.nan
         main_cost_unit = "$/kg"
     # Define main product amount
     main_amount = 1
     # Define main product unit
-    string2 = read_from_excel(file, 6,4)
-    main_amount_unit_search = re.search(r"per (.*$)") # Look for everything behind "per"
+    string2 = pd.read_excel(file, sheet_name=0).iloc[6,3]
+    main_amount_unit_search = re.search(r"per (.*$)", string2) # Look for everything behind "per"
     if main_amount_unit_search:
         main_amount_unit = main_amount_unit_search.group(0)
     else:
         raise RuntimeError("Something is wrong with the regex for searching the main amount unit!")
 
-# function streams = get_streams(file)
-# %% Function to extract the in/output sterams from the IHS ecxel file
-# streams.name = [];
-# streams.cost = [];
-# streams.cost_unit = [];
-# streams.amount = [];
-# streams.amount_unit = [];
-# streams.cost_per_kg = [];
-# streams.class = [];
-#
-# %% main product
-# string = file{2,1};
-# % find main product name 
-# start_main_name = strfind(string,'Product:')+9; %stard of name
-# end_main_name = strfind((string(start_main_name:end)),',  ')+start_main_name; % end of name
-# end_main_name = end_main_name(1) -2;
-# main_name = string(start_main_name:end_main_name);
-#
-# % find main product price 
-# if strfind(string,'Price:') % check if there is a price for the product 
-#     start_main_cost = strfind(string,'Price:')+7; %stard of name
-#     end_main_cost = strfind((string(start_main_cost:end)),',  ')+start_main_cost; % end of name
-#     end_main_cost = end_main_cost(1) -2;
-#     main_cost = string(start_main_cost:end_main_cost);
-#     %split in value and unit 
-#     div = strfind(main_cost,' ');
-#     main_cost_unit  = main_cost(div+1:end);
-#     main_cost =  main_cost(1:div-1);
-# else
-#     main_cost = nan;
-#     main_cost_unit = '$/kg';
-# end
-#
-# % main product amount 
-# main_amount = 1; 
-#
-# % main product unit 
-# main_amount_unit = file{6,4}(5:end);
-# if ~strcmp(main_amount_unit,'TONNE')
-#     disp(main_amount_unit)
-# end
-#
-# % set to output
-# streams(1).name = main_name;
-# streams(1).cost = str2double(main_cost);
-# streams(1).cost_unit = main_cost_unit;
-# streams(1).amount = main_amount;
-# streams(1).amount_unit = main_amount_unit;
-# streams(1).class = 1;
-#
-#
-# %% raw materials 
-# % find start raw materials
-# start_raw_materials = 0;
-# for i = 1:size(file,1)
-#     if strcmp(file{i,1},'RAW MATERIALS') 
-#         start_raw_materials = i+1;
-#         break;
-#     end
-# end
-#
-# if start_raw_materials > 0
-#     for i = start_raw_materials:size(file,1)
-#         if isnan(file{i,1}) 
-#             end_raw_materials = i-1;
-#             break;
-#         end
-#     end
-#
-#
-#     for i = start_raw_materials:end_raw_materials
-#         streams(end+1).name = file{i,1};
-#         streams(end).cost = file{i,2};
-#         streams(end).cost_unit = file{i,3};
-#         streams(end).amount = -file{i,4};
-#         streams(end).amount_unit = file{i,5};
-#         streams(end).class = 1;
-#         streams(end).cost_per_kg = -file{i,6}/100;
-#     end
-# end
-# %% by products
-# start_by_product = 0;
-# for i = 1:size(file,1)
-#     if strcmp(file{i,1},'BY-PRODUCT CREDITS') 
-#         start_by_product = i+1;
-#         break;
-#     end
-# end
-# if start_by_product > 0
-#     for i = start_by_product:size(file,1)
-#         if isnan(file{i,1}) 
-#             end_by_product = i-1;
-#             break;
-#         end
-#     end
-#
-#     for i = start_by_product:end_by_product
-#         streams(end+1).name = file{i,1};
-#         streams(end).cost = file{i,2};
-#         streams(end).cost_unit = file{i,3};
-#         streams(end).amount = -file{i,4};
-#         streams(end).amount_unit = file{i,5};
-#         streams(end).class = 1;
-#         streams(end).cost_per_kg = file{i,6}/100;
-#     end
-# end
-#
-# %% utilities 
-# start_utilities = 0;
-# for i = 1:size(file,1)
-#     if strcmp(file{i,1},'UTILITIES') 
-#         start_utilities = i+1;
-#         break;
-#     end
-# end
-#
-# if start_utilities >0
-#     for i = start_utilities:size(file,1)
-#         if isnan(file{i,1}) 
-#             end_utilities = i-1;
-#             break;
-#         end
-#     end
-#
-#     for i = start_utilities:end_utilities
-#         streams(end+1).name = file{i,1};
-#         streams(end).cost = file{i,2};
-#         streams(end).cost_unit = file{i,3};
-#         streams(end).amount = -file{i,4};
-#         streams(end).amount_unit = file{i,5};
-#         streams(end).class = 2;
-#         streams(end).cost_per_kg = -file{i,6}/100;
-#     end
-# end
-# streams = convert_units(streams);
-# end
+    # Add main product to list of streams
+    streams.append(Stream(name=main_name, cost=main_cost, cost_unit=main_cost_unit, amount=main_amount, amount_unit=main_amount_unit, cost_per_kg=np.nan, class_=1))
+
+
+    # Generate Streams for Raw materials, by-products and utilities. In the future this can be encapsulated into a single function.
+
+    # Generate Streams for Raw materials 
+    ## Find the start index of the raw materials
+    for index, value in first_column_s.items():
+        idx_raw_materials_start = 0
+        if value == 'RAW MATERIALS':
+            idx_raw_materials_start = index+1
+            break
+    ## Only look for raw materials if they exist and find end index of materials.
+    if idx_raw_materials_start>0:
+        for index, value in first_column_s[idx_raw_materials_start:].items():
+            if pd.isna(value):
+                idx_raw_materials_end = index-1
+                break 
+    # Get Dataframe with all raw materials
+    raw_materials_df = pd.read_excel(file, sheet_name=0).iloc[idx_raw_materials_start:idx_raw_materials_end+1]
+    for raw_material_idx, values in raw_materials_df.iterrows():
+        streams.append(Stream(name=values[0], cost=values[1], cost_unit=values[2], amount=-values[3], amount_unit=values[4], class_=1, cost_per_kg=-values[5]/100))
+    
+    # Generate Streams for by-products
+    ## Find the start index of the by-products
+    for index, value in first_column_s.items():
+        idx_by_products = 0
+        if value == 'BY-PRODUCT CREDITS':
+            idx_by_products_start = index+1
+            break
+    ## Only look for raw materials if they exist and find end index of materials.
+    if idx_by_products_start>0:
+        for index, value in first_column_s[idx_by_products_start:].items():
+            if pd.isna(value):
+                idx_by_products_end = index-1
+                break 
+    # Get Dataframe with all raw materials
+    by_products_df = pd.read_excel(file, sheet_name=0).iloc[idx_by_products_start:idx_by_products_end+1]
+    for by_products_idx, values in by_products_df.iterrows():
+        streams.append(Stream(name=values[0], 
+                              cost=values[1],
+                              cost_unit=values[2],
+                              amount=-values[3],
+                              amount_unit=values[4],
+                              class_=1,
+                              cost_per_kg=values[5]/100))
+
+    # Generate Streams for utilities
+    ## Find the start index of the by-products
+    for index, value in first_column_s.items():
+        idx_utilities = 0
+        if value == 'UTILITIES':
+            idx_utilities_start = index+1
+            break
+    ## Only look for raw materials if they exist and find end index of materials.
+    if idx_utilities_start>0:
+        for index, value in first_column_s[idx_utilities_start:].items():
+            if pd.isna(value):
+                idx_utilities_end = index-1
+                break 
+    # Get Dataframe with all raw materials
+    utilities_df = pd.read_excel(file, sheet_name=0).iloc[idx_utilities_start:idx_utilities_end+1]
+    for utilities_idx, values in utilities_df.iterrows():
+        streams.append(Stream(name=values[0], 
+                              cost=values[1],
+                              cost_unit=values[2],
+                              amount=-values[3],
+                              amount_unit=values[4],
+                              class_=1,
+                              cost_per_kg=values[5]/100))
+    #pprint(streams)
+    return convert_units(streams);

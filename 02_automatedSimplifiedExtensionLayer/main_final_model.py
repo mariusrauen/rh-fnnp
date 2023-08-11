@@ -4,8 +4,11 @@
 # % Original Author: Raoul.Meys@carbon-minds.com
 # % Edits and Responsibility: Laura.Stellner@carbon-minds.com
 from pathlib import Path
+from utils.excel_interaction import read_from_excel_cell
 import logging
-import xlwings as xw
+from utils.get_streams import Stream, get_streams
+from pprint import pprint
+
 # Define Path Variables
 #working_path = Path().cwd()
 working_path = Path("/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/04_simplifiedExtensionLayer")
@@ -40,27 +43,9 @@ PathInputsModel = working_path/'..'/'03_extensionLayer'/'00_TechModel'/ecoinvent
 
 logging.info('Setting up model structure...')
 file_list = [file for file in (pathInput/'dummy_IHS').glob('*.xlsx')]
-# This is just to make sure ".." and "." is not in the dictory. Useless with glob here.
-#
-# file_list = dir(fullfile(pathInput,'dummy_IHS\')); % delete void entries
-#
-# file_list = file_list(~cell2mat({file_list.isdir}));
-#
-# %% remove hidden fields 
-#
-# index = [];
-# for i = 1:length(file_list)
-#     if ~strcmp(file_list(i).name(1),'.')
-#         index(end+1) = i;
-#     end
-# end
-#
-# file_list = file_list(index);
-#
 
 for file in file_list:
-    xlsread(file)
-#
+    pprint(get_streams(file))
 # %% main loop to include excel files
 #
 # for i = 1:length(file_list)
