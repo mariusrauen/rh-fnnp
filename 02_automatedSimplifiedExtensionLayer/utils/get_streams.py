@@ -60,30 +60,30 @@ def convert_units(streams: list[Stream]) -> None:
                 stream.unit_type = 'Unknowen'
         # Now alter the cost_unit of the Streams
         match stream.cost_unit:
-             case 'Ôö¼├│/KG':
+             case '¢/KG':
                 stream.cost_unit = '$/KG'
                 stream.cost = stream.cost/100
-             case 'Ôö¼├│/G':
+             case '¢/G':
                 stream.cost_unit = '$/KG'
                 stream.cost = stream.cost/100*1000
              case '$/kg':
                 stream.cost_unit = '$/KG'
-             case 'Ôö¼├│/EA':
+             case '¢/EA':
                 stream.cost_unit = '$/EA'
                 stream.cost = stream.cost/100
-             case 'Ôö¼├│/TONNE':
+             case '¢/TONNE':
                 stream.cost_unit = '$/KG'
                 stream.cost = stream.cost/1000/100
-             case 'Ôö¼├│/M3':
+             case '¢/M3':
                 stream.cost_unit = '$/NM3'
                 stream.cost = stream.cost/100
-             case 'Ôö¼├│/NM3':
+             case '¢/NM3':
                 stream.cost_unit = '$/NM3'
                 stream.cost = stream.cost/100
-             case 'Ôö¼├│/KWH':
+             case '¢/KWH':
                 stream.cost_unit = '$/MJ'
                 stream.cost = stream.cost/3.6/100
-             case 'Ôö¼├│/MMCAL':
+             case '¢/MMCAL':
                 stream.cost_unit = '$/MJ'
                 stream.cost = stream.cost/4.187/100
              case pd.isna:
@@ -102,15 +102,16 @@ def get_streams(file: Path) -> list[Stream]:
     # Find the main product name. If it can not be found raise an error.
     main_name_search = re.search(r"Product: (.*?),", string)
     if main_name_search:
-        main_name = main_name_search.group(0) # Returns the first match of Regex 
+        main_name = main_name_search.group(1) # Returns the first match of Regex 
     else:
         raise(RuntimeError('The regex search was not successful.'))
     # Find the main product's price. If it does not exist, define it with nan$/kg
     price_with_unit_search = re.search(r"Price: (.*?),", string) # Look for words after "Price:" until ","
     if price_with_unit_search:
-        price_with_unit = price_with_unit_search.group(0) # Returns the first match of Regex 
-        main_cost = price_with_unit.split(' ')[1]
-        main_cost_unit = price_with_unit.split(' ')[2]
+        price_with_unit = price_with_unit_search.group(1) # Returns the first match of Regex 
+        main_cost = float(price_with_unit.split(' ')[0])
+        main_cost_unit = price_with_unit.split(' ')[1]
+        print(main_cost_unit, main_cost)
     else:
         main_cost = np.nan
         main_cost_unit = "$/kg"
@@ -195,5 +196,6 @@ def get_streams(file: Path) -> list[Stream]:
                               amount_unit=values[4],
                               class_=1,
                               cost_per_kg=values[5]/100))
+    convert_units(streams) 
+    return streams
     #pprint(streams)
-    return convert_units(streams);
