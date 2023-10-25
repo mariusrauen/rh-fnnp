@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+import sys
 import pandas as pd
 import numpy as np
 import requests
@@ -83,17 +84,17 @@ def get_cas_data(queries: list[str]) -> pd.DataFrame:
         df = pd.concat([df,pd.DataFrame(get_chemical_details(get_compound_info(get_compound_cas_from_smile_or_name(query))),index=[query])], axis=0)
     return df
 
-def get_cm_db()->pd.DataFrame:
+def get_cm_db(included_chemicals_master: Path, meta_data_flows_master: Path)->pd.DataFrame:
     """Read in Molecule and Metadata of chemicals in CM xls files and generates rdkit mols and generate morgan fingerprints with radius 3 with a length of 2048 bits for all SMILES deposited in the database
     this is added as a 'morgan_fp' column in the database. chemical fingerprint."""
 
-    path_included_chemicals = "/mnt/c/Users/Jonas/Carbon Minds GmbH/CM_Documents - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/IncludedChemicals.xlsx"
+    path_included_chemicals = included_chemicals_master
     layer1 = pd.read_excel(path_included_chemicals, sheet_name='LAYER1')
     layer2 = pd.read_excel(path_included_chemicals, sheet_name='LAYER2')
     layer3 = pd.read_excel(path_included_chemicals, sheet_name='LAYER3')
     ecoinvent = pd.read_excel(path_included_chemicals, sheet_name='ECOINVENT')
     all_cm_chemicals = pd.concat([layer1,layer2,layer3,ecoinvent])
-    chemicals_meta_data = pd.read_excel("/mnt/c/Users/Jonas/Carbon Minds GmbH/CM_Documents - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/00_inputData/meta_data_flows.xlsx")
+    chemicals_meta_data = pd.read_excel(meta_data_flows_master)
     all_cm = pd.merge(all_cm_chemicals, chemicals_meta_data, left_on='Included chemicals', right_on='name')
     #PandasTools.AddMoleculeColumnToFrame(all_cm,'SMILES CODE','Molecule')
     #fpgen = AllChem.GetMorganGenerator(radius=3)
@@ -239,6 +240,77 @@ def remove_water_from_processes(processes: list[CMProcess]) -> None:
             del process.coproducts_raw_material_id[water_index]
             logging.debug("Removed water from a Process!")
 
+def get_header_for_reaction_extension_layer()->list[str]:
+    return(['raw_material_id', 'raw materials', 'CAS-Nr.', 'chemical formular', 'molecular mass','category', '[unit choice]','name','SMILES','comment'])
+
+def get_header_for_meta_data_flows_master_file()->list[str]:
+    return(['name', 'category', 'concentration/purity', 'CAS-Nr.', 'unit(choice)', '[unit choice]', 'Market price', 'HHV', 'LHV', 'chemical formular[C2C4 format]', 
+            'location(choice)', 'exact location', 'comments', 'SMILES CODE', 'molecular mass', 'flowCategory', 'flowSubcategory'])
+
+def get_data_for_reference_sheet(input_path: Path, sheet_name: str | int, included_chemicals_master: Path | str, meta_data_flows_master_file: Path | str) -> pd.DataFrame:
+    raw_mats = pd.read_excel(input_path, sheet_name=sheet_name)
+    all_cm = get_cm_db(included_chemicals_master, meta_data_flows_master_file)
+    result = (
+        pd.merge(raw_mats, all_cm, how='left', left_on='raw materials', right_on= 'Included chemicals', validate='1:1')
+    )
+    result['CAS-Nr.'] = result['CAS-Nr._x'].fillna(result['CAS-Nr._y'])
+    result['chemical formular'] = result['chemical formular'].fillna(result['chemical formular[C2C4 format]'])
+    result['molecular mass'] = result['molecular mass_x'].fillna(result['molecular mass_y'])
+    result['SMILES'] = result['SMILES'].fillna(result['SMILES CODE'])
+    result['[unit choice]'] = 'kg'
+    result['name'] = result['raw materials']
+    result['category'] = result['category_y']
+    result['raw_material_id'] = list(range(len(result)))
+    result = result.loc[:,get_header_for_reaction_extension_layer()]
+    print(result)
+    return result
+
+def get_data_for_addition_to_meta_data_flows_master_file(input_path: Path, sheet_name: str | int, included_chemicals_master: Path | str,
+                                                         meta_data_flows_master_file: Path | str) -> pd.DataFrame:
+    raw_mats = pd.read_excel(input_path, sheet_name=sheet_name)
+    all_cm = get_cm_db(included_chemicals_master, meta_data_flows_master_file)
+    result = (
+        pd.merge(raw_mats, all_cm, how='left', left_on='raw materials', right_on= 'Included chemicals', validate='1:1', indicator=True)
+    )
+    result = result.loc[result['_merge'] == 'left_only']
+    result['CAS-Nr.'] = result['CAS-Nr._x'].fillna(result['CAS-Nr._y'])
+    result['chemical formular[C2C4 format]'] = result['chemical formular'].fillna(result['chemical formular[C2C4 format]'])
+    result['molecular mass'] = result['molecular mass_x'].fillna(result['molecular mass_y'])
+    result['SMILES CODE'] = result['SMILES'].fillna(result['SMILES CODE'])
+    result['[unit choice]'] = 'kg'
+    result['name'] = result['raw materials']
+    result['unit(choice)'] = 'Mass'
+    result['concentration'] = np.nan
+    result['HHV'] = np.nan
+    result['LHV'] = float(0)
+    result['flowCategory'] = 'materials production'
+    result['category'] = 1
+    result['flowSubcategory'] = 'chemical'
+    result = result.loc[:, get_header_for_meta_data_flows_master_file()]
+    print(result)
+    print(result.columns)
+    return result
+
+def get_data_for_addition_to_included_chemicals_file(input_path: Path, included_chemicals_master: Path | str,
+                                                         meta_data_flows_master_file: Path | str) -> pd.DataFrame:
+    process_id = pd.read_excel(input_path, sheet_name='process_id')
+    all_cm = get_cm_db(included_chemicals_master, meta_data_flows_master_file)
+    result = (
+        pd.merge(process_id, all_cm, how='left', left_on='main flow', right_on= 'Included chemicals', validate='1:1', indicator=True)
+    )
+    result = result.loc[result['_merge'] == 'left_only']
+    result = pd.merge(result, pd.read_excel(input_path, sheet_name='raw_material_id').loc[:,['raw materials', 'CAS-Nr.']], how='left', left_on='main flow', right_on='raw materials')
+    print(result)
+    result['Process'] = result['process']
+    result['Included chemicals'] = result['main flow']
+    result['CAS'] = result['CAS-Nr._y']
+    # result.rename({'process':'Process', 'main flow': 'Included chemicals', 'CAS-Nr.':'CAS'}, axis=1)
+    result['Included in'] = 'LAYER 3'
+    result = result.loc[:, ['Process', 'Included chemicals', 'Included in', 'CAS']]
+    print(result)
+    print(result.columns)
+    return result
+
 # def write_frame_into_excelsheet(filename: Path, sheetname: str, dataframe: pd.DataFrame) -> None:
 #     with pd.ExcelWriter(filename, engine='openpyxl', mode='a', data_only=True) as writer: 
 #         workBook = writer.book
@@ -250,20 +322,42 @@ def remove_water_from_processes(processes: list[CMProcess]) -> None:
 #             dataframe.to_excel(writer, sheet_name=sheetname,index=None)
 #
 def main(path: Path | str) -> None:
-    pass
+    included_chemicals_master = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/IncludedChemicals.xlsx"
+    meta_data_flows_master_file = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/00_inputData/meta_data_flows.xlsx"
+   
+    # df = get_data_for_reference_sheet(INPUT_PATH, 'raw_material_id', included_chemicals_master, meta_data_flows_master_file)
+    # df.to_clipboard(index=None)
+    
+    # reference_sheet = pd.read_excel(INPUT_PATH, sheet_name='reference')
+    # reference_sheet['process'] = reference_sheet.apply(lambda x: f"reaction of {x['raw material 1']} and {x['raw material 2']}", axis=1)
+    # reference_sheet.loc[:,['process', 'main flow']].to_clipboard(index=None)
+    
+    # print(reference_sheet)
+    # print(reference_sheet.columns)
+    # df = (
+    #     get_data_for_addition_to_meta_data_flows_master_file(INPUT_PATH, 'raw_material_id', included_chemicals_master, meta_data_flows_master_file)
+    #     .to_clipboard(index=None, header=None)
+    # )
+    df = (
+        get_data_for_addition_to_included_chemicals_file(INPUT_PATH, included_chemicals_master, meta_data_flows_master_file)
+        .to_clipboard(index=None, header=None)
+    )
+    #print(pd.read_excel(meta_data_flows_master_file).columns.values.tolist())
     # processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
     # remove_water_from_processes(processes)
     # try: 
     #     matrix = generate_matrix_from_list_of_processes(processes)
     # except: 
     #     raise RuntimeError("There is something wrong with the matrix generation!")
-    # # Copy file to avoid data loss 
+    # Copy file to avoid data loss 
     # copyfile(INPUT_PATH, INPUT_PATH.with_stem("reaction_extension_layer_inputcopy"))
-    # # Add matrix to original input excel
-    # # write_frame_into_excelsheet(filename=INPUT_PATH, sheetname='matrix_table', dataframe=matrix)
+    # Add matrix to original input excel
+    # write_frame_into_excelsheet(filename=INPUT_PATH, sheetname='matrix_table', dataframe=matrix)
     # matrix.to_excel(INPUT_PATH.with_stem("reaction_extension_layer_matrix"), sheet_name='matrix_table')
 
 
 if __name__ == '__main__':
-    INPUT_PATH = Path("../xlsx/reaction_extension_layer.xlsx")
+    # INPUT_PATH = Path("../xlsx/reaction_extension_layer.xlsx")
+    # INPUT_PATH = Path(sys.argv[1])
+    INPUT_PATH = Path('../xlsx/actega_reaction_extension_layer_2.xlsx')
     main(INPUT_PATH)

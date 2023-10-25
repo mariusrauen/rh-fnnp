@@ -9,6 +9,7 @@ from pathlib import Path
 logging.getLogger().setLevel(logging.INFO)
 from typing import Union
 from shutil import copyfile 
+import sys
 
 @dataclass
 class CMProcess:
@@ -200,9 +201,9 @@ def generate_processes_list_from_reference_sheet_and_raw_material_id(path: Path)
                   educts=educts, educts_coeff=educts_coeff, educts_raw_material_id=educts_raw_material_id,
                   coproducts=coproducts, coproducts_coeff=coproducts_coeff, coproducts_raw_material_id=coproducts_raw_material_id))
                   
-        logging.DEBUG(product, process_id)
-        logging.DEBUG(educts,educts_coeff,educts_raw_material_id)
-        logging.DEBUG(coproducts,coproducts_coeff,coproducts_raw_material_id)
+        logging.debug(product, process_id)
+        logging.debug(educts,educts_coeff,educts_raw_material_id)
+        logging.debug(coproducts,coproducts_coeff,coproducts_raw_material_id)
     
     return processes 
 
@@ -212,17 +213,17 @@ def generate_matrix_from_list_of_processes(processes: list[CMProcess]) -> pd.Dat
     for process in processes:
         matrix = pd.concat([matrix, pd.DataFrame({'raw_material_id':process.product_raw_material_id,'process_id':process.process_id,'coefficient':process.product_coeff}, index=[0])])
         if len(process.coproducts)==1:
-            logging.DEBUG(process.process_id, process.coproducts)
+            logging.debug(process.process_id, process.coproducts)
             matrix = pd.concat([matrix, pd.DataFrame({'raw_material_id':process.coproducts_raw_material_id[0],'process_id':process.process_id,'coefficient':process.coproducts_coeff[0]}, index=[0])])
         if len(process.coproducts)>1:
             for idx, coproduct in enumerate(process.coproducts):
                 matrix = pd.concat([matrix, pd.DataFrame({'raw_material_id':process.coproducts_raw_material_id[idx],'process_id':process.process_id,'coefficient':process.coproducts_coeff[idx]}, index=[0])])
         if len(process.educts)==1:
-            logging.DEBUG(process.process_id, process.educts)
+            logging.debug(process.process_id, process.educts)
             matrix = pd.concat([matrix, pd.DataFrame({'raw_material_id':process.educts_raw_material_id[0],'process_id':process.process_id,'coefficient':process.educts_coeff[0]}, index=[0])])
         if len(process.educts)>1:
             for idx, coproduct in enumerate(process.educts):
-                logging.DEBUG(process.process_id, process.educts)
+                logging.debug(process.process_id, process.educts)
                 matrix = pd.concat([matrix, pd.DataFrame({'raw_material_id':process.educts_raw_material_id[idx],'process_id':process.process_id,'coefficient':process.educts_coeff[idx]}, index=[0])])   
     return matrix
 
@@ -246,24 +247,27 @@ def checkup_on_included_chemicals(included_chemicals_master_file: Path, reaction
     incl_chem = pd.read_excel(included_chemicals_master_file, sheet_name=None)
     all_included_chemicals = pd.concat([incl_chem['LAYER1'], incl_chem['LAYER2'], incl_chem['LAYER3'], incl_chem['ECOINVENT']], axis=0)['Included chemicals'].values
     for mainflow_name in reaction_ext['process_id'].loc[:,"main flow"].values:
-        if mainflow_name in all_included_chemicals:
-            logging.warning(f"{mainflow_name} already exists in Included_Chemicals.xlsx")
+        if mainflow_name not in all_included_chemicals:
+            logging.warning(f"{mainflow_name} is not in Included_Chemicals.xlsx")
     mainflows_with_cas = pd.merge(reaction_ext['process_id'].loc[:,["main flow"]], reaction_ext['raw_material_id'].loc[:,['name', 'CAS-Nr.']], left_on='main flow', right_on='name', how='left')
     all_cas = pd.concat([incl_chem['LAYER1'], incl_chem['LAYER2'], incl_chem['LAYER3'], incl_chem['ECOINVENT']], axis=0).CAS.values
     for cas_id in mainflows_with_cas['CAS-Nr.'].values:
-        if cas_id in all_cas:
-            logging.warning(f"{cas_id} is already in Included_Chemicals.xlsx")
+        if cas_id not in all_cas:
+            logging.warning(f"{cas_id} is not in Included_Chemicals.xlsx")
     
-def checkup_on_meta_data_flows(meta_data_flows_master_file: Path, reaction_extension_layer_file: Path) -> None:
+def checkup_on_meta_data_flows(meta_data_flows_master_file: Path, reaction_extension_layer_file: Path) -> list[str]:
     """This function checks if all materials mentioned in the added reaction are mentioned in the meta_data_flows_master_file"""
     meta_data_master = pd.read_excel(meta_data_flows_master_file) # First Sheet is taken
     reaction_ext = pd.read_excel(reaction_extension_layer_file, sheet_name=None)
+    missing_names_list = []
     for name in reaction_ext['raw_material_id'].loc[2:,['raw materials']].values: # do not include electricity and thermal energy
         if name not in meta_data_master['name'].values:
-            logging.warning(f"{name} is not in the raw materials")
+            missing_names_list.append(name)
+            logging.warning(f"{name} is not in the MASTER raw materials")
     for casnr in reaction_ext['raw_material_id'].loc[2:,['CAS-Nr.']].values:
         if casnr not in meta_data_master['CAS-Nr.'].values:
-            logging.warning(f"{casnr} is not in the raw materials")
+            logging.warning(f"{casnr} is not in the MASTER raw materials")
+    return missing_names_list
 
 
 # def write_frame_into_excelsheet(filename: Path, sheetname: str, dataframe: pd.DataFrame) -> None:
@@ -284,17 +288,12 @@ def main(path: Path | str) -> None:
     3. Write excel file into xlsx folder.
 
     '''
-    included_chemicals_master = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/IncludedChemicals - Kopie.xlsx"
+    included_chemicals_master = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/IncludedChemicals.xlsx"
     meta_data_flows_master_file = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/00_inputData/meta_data_flows.xlsx"
     checkup_on_included_chemicals(Path(included_chemicals_master), Path(path))
-    checkup_on_meta_data_flows(Path(meta_data_flows_master_file), Path(path))
+    missing_names_list = checkup_on_meta_data_flows(Path(meta_data_flows_master_file), Path(path))
     processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
     remove_water_from_processes(processes)
-
-if __name__ == '__main__':
-    path = '../xlsx/reaction_extension_layer.xlsx'
-    output = f"{path.replace('.xlsx','_matrix.xlsx')}"
-    main(path, output)
     try: 
         matrix = generate_matrix_from_list_of_processes(processes)
     except: 
@@ -306,5 +305,5 @@ if __name__ == '__main__':
     matrix.to_excel(INPUT_PATH.with_stem("reaction_extension_layer_matrix"), sheet_name='matrix_table')
 
 if __name__ == '__main__':
-    INPUT_PATH = Path("../xlsx/reaction_extension_layer.xlsx")
+    INPUT_PATH = Path(sys.argv[1])
     main(INPUT_PATH)

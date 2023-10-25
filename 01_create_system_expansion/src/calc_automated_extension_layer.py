@@ -122,7 +122,7 @@ def matrix_creation(df_name: pd.DataFrame, column_name: str, row_name: str, data
     global matrix_df_variable
     matrix_df_variable = pd.DataFrame(data=matrix_variable, index= list(index_raw_materials[index_row]), 
     columns=list(index_processes[index_column]))
-    print (matrix_df_variable)
+    print(matrix_df_variable)
     return matrix_df_variable
 
 def create_system_expansion(matrixA: pd.DataFrame, output_file_path: str) -> None: # TODO: Write line with database version
