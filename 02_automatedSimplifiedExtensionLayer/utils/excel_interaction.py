@@ -51,7 +51,7 @@ def read_from_excel_cell(path: Path, sheet: str|int, row: int, column: int) -> s
     workbook = load(workbook)
 
     # Use match case to get the specified sheet
-    match sheet_name:
+    match sheet:
         case int():
             sheet = workbook[sheet_name - 1]
         case str():

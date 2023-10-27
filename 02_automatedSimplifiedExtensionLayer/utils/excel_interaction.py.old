@@ -1,5 +1,5 @@
 import xlwings as xw
-
+from pathlib import Path
 
 def write_to_excel(path, sheet, cell, val):
     """
@@ -60,3 +60,5 @@ def read_from_excel(path: Path, sheet: str|int, row: int, column: int) -> str:
     app.quit()
     return result
 
+if __name__ == '__main__':
+    pass
