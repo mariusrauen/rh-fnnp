@@ -10,17 +10,17 @@ from utils.get_streams import Stream, get_streams
 from pprint import pprint
 from numpy import array
 
-@dataclass
-class Model:
-    technical_flows: list[Flow]
-    A_distribution:
-    A_mean:
-    A_std_dev:
-    factor_requirements:
-    F_distribution:
-    F_mean: np.array
-    F_std_dev:
-
+# @dataclass
+# class Model:
+#     technical_flows: list[Flow]
+#     A_distribution:
+#     A_mean:
+#     A_std_dev:
+#     factor_requirements:
+#     F_distribution:
+#     F_mean: np.array
+#     F_std_dev:
+#
 
 
 # Define Path Variables

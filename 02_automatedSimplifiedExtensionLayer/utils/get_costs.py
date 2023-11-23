@@ -4,4 +4,6 @@ class Costs:
     value: float
     unit: str
 
-def get_costs()
+def get_costs():
+
+    pass
