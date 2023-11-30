@@ -10,6 +10,7 @@ logging.getLogger().setLevel(logging.INFO)
 from typing import Union
 from shutil import copyfile 
 import sys
+from configparser import ConfigParser
 
 @dataclass
 class CMProcess:
@@ -26,6 +27,11 @@ class CMProcess:
     educts_coeff: list[str]
     educts_raw_material_id: list[int]
 
+def read_in_config() -> ConfigParser:
+    """This function reads in the parameters specified in the config.ini file."""
+    config = ConfigParser()
+    config.read('config.ini')
+    return config
 
 def get_compound_cas_from_smile_or_name(query):
     """Get a compound's CAS number using the name or smile."""
@@ -280,7 +286,7 @@ def checkup_on_meta_data_flows(meta_data_flows_master_file: Path, reaction_exten
 #         finally:
 #             dataframe.to_excel(writer, sheet_name=sheetname,index=None)
 #
-def main(path: Path | str) -> None:
+def main(path: Path | str, config: ConfigParser) -> None:
     '''Generate a matrix from the reference sheet xlsx. 
 
     1. Generate CMProcesses containing reaction data. 
@@ -288,10 +294,10 @@ def main(path: Path | str) -> None:
     3. Write excel file into xlsx folder.
 
     '''
-    included_chemicals_master = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/IncludedChemicals.xlsx"
-    meta_data_flows_master_file = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/00_inputData/meta_data_flows.xlsx"
-    checkup_on_included_chemicals(Path(included_chemicals_master), Path(path))
-    missing_names_list = checkup_on_meta_data_flows(Path(meta_data_flows_master_file), Path(path))
+    included_chemicals_master = Path(config['CM_CHEMICALS']['included_chemicals_master_file'])
+    meta_data_flows_master_file = Path(config['CM_CHEMICALS']['meta_data_flows_master_file'])
+    checkup_on_included_chemicals(included_chemicals_master, Path(path))
+    missing_names_list = checkup_on_meta_data_flows(meta_data_flows_master_file, Path(path))
     processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
     remove_water_from_processes(processes)
     try: 
@@ -306,4 +312,5 @@ def main(path: Path | str) -> None:
 
 if __name__ == '__main__':
     INPUT_PATH = Path(sys.argv[1])
-    main(INPUT_PATH)
+    config = read_in_config()
+    main(INPUT_PATH, config)
