@@ -325,15 +325,19 @@ def main(path: Path | str) -> None:
     included_chemicals_master = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/IncludedChemicals.xlsx"
     meta_data_flows_master_file = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/00_inputData/meta_data_flows.xlsx"
    
-    # df = get_data_for_reference_sheet(INPUT_PATH, 'raw_material_id', included_chemicals_master, meta_data_flows_master_file)
-    # df.to_clipboard(index=None)
-    
+    # df = (
+    #     get_data_for_reference_sheet(INPUT_PATH, 'raw_material_id', included_chemicals_master, meta_data_flows_master_file)
+    #     .to_clipboard(index=None, header=None)
+    # )
     # reference_sheet = pd.read_excel(INPUT_PATH, sheet_name='reference')
     # reference_sheet['process'] = reference_sheet.apply(lambda x: f"reaction of {x['raw material 1']} and {x['raw material 2']}", axis=1)
     # reference_sheet.loc[:,['process', 'main flow']].to_clipboard(index=None)
     
     # print(reference_sheet)
     # print(reference_sheet.columns)
+    
+
+
     # df = (
     #     get_data_for_addition_to_meta_data_flows_master_file(INPUT_PATH, 'raw_material_id', included_chemicals_master, meta_data_flows_master_file)
     #     .to_clipboard(index=None, header=None)
@@ -342,7 +346,11 @@ def main(path: Path | str) -> None:
         get_data_for_addition_to_included_chemicals_file(INPUT_PATH, included_chemicals_master, meta_data_flows_master_file)
         .to_clipboard(index=None, header=None)
     )
-    #print(pd.read_excel(meta_data_flows_master_file).columns.values.tolist())
+   
+
+
+
+#print(pd.read_excel(meta_data_flows_master_file).columns.values.tolist())
     # processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
     # remove_water_from_processes(processes)
     # try: 
@@ -358,6 +366,6 @@ def main(path: Path | str) -> None:
 
 if __name__ == '__main__':
     # INPUT_PATH = Path("../xlsx/reaction_extension_layer.xlsx")
-    # INPUT_PATH = Path(sys.argv[1])
-    INPUT_PATH = Path('../xlsx/actega_reaction_extension_layer_2.xlsx')
+    INPUT_PATH = Path(sys.argv[1])
+    #INPUT_PATH = Path('../xlsx/')
     main(INPUT_PATH)
