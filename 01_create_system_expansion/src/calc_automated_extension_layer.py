@@ -134,8 +134,8 @@ def create_system_expansion(matrixA: pd.DataFrame, output_file_path: str) -> Non
     'exact location','capacity', 'unit per year (choice)', 'comments', 'type'] , columns=list(index_processes['process']))
     process_meta_data.loc['mainflow',:] =  np.array(list(processes['main flow']))
     process_meta_data.loc['unit per year (choice)',:] =  "t/a"
-    process_meta_data.loc['type',:] =  2
-    process_meta_data.loc['EFnomenclature',:] = r'3.8_2021'
+    process_meta_data.loc['type',:] =  2 # This means allocations is done by mass -> change for hydrogen as byproduct
+    process_meta_data.loc['EFnomenclature',:] = r'3.8_2021' # This should be changed according to the next DB update
     process_meta_data.index.names=['name']
     process_meta_data = process_meta_data.reset_index()
     matrixB = pd.DataFrame(index=None, columns=['name','compartment','subcompartment', 'unit']+list(index_processes['process']))
