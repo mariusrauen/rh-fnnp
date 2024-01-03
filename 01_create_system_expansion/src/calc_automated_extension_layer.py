@@ -125,7 +125,7 @@ def matrix_creation(df_name: pd.DataFrame, column_name: str, row_name: str, data
     print(matrix_df_variable)
     return matrix_df_variable
 
-def create_system_expansion(matrixA: pd.DataFrame, output_file_path: str) -> None: # TODO: Write line with database version
+def create_system_expansion(matrixA: pd.DataFrame, output_file_path: str) -> None:
     '''Create final system expansion excel.'''
     matrixA.index.names=['name']
     raw_materials_x = raw_materials[['name', 'category', '[unit choice]']]

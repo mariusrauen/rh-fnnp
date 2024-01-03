@@ -259,7 +259,7 @@ def checkup_on_included_chemicals(included_chemicals_master_file: Path, reaction
     all_cas = pd.concat([incl_chem['LAYER1'], incl_chem['LAYER2'], incl_chem['LAYER3'], incl_chem['ECOINVENT']], axis=0).CAS.values
     for cas_id in mainflows_with_cas['CAS-Nr.'].values:
         if cas_id not in all_cas:
-            logging.warning(f"{cas_id} is not in Included_Chemicals.xlsx")
+            logging.warning(f"{cas_id} is not in the master Included_Chemicals.xlsx")
     
 def checkup_on_meta_data_flows(meta_data_flows_master_file: Path, reaction_extension_layer_file: Path) -> list[str]:
     """This function checks if all materials mentioned in the added reaction are mentioned in the meta_data_flows_master_file"""
