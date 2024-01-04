@@ -134,6 +134,10 @@ def get_all_mols(df: pd.DataFrame)->list[str]:
     allmols.append(df['co-product 1'].to_list())
     allmols.append(df['co-product 2'].to_list())
     allmols.append(df['co-product 3'].to_list())
+    allmols.append(df['co-product 4'].to_list())
+    allmols.append(df['co-product 5'].to_list())
+    allmols.append(df['co-product 6'].to_list())
+    allmols.append(df['co-product 7'].to_list())
     flatten_list_with_nan = [mol for sublist in allmols for mol in sublist]
     flatten_list = [mol for mol in flatten_list_with_nan if str(mol)!='nan']
     return list(set(flatten_list))
@@ -163,6 +167,9 @@ def generate_processes_list_from_reference_sheet_and_raw_material_id(path: Path)
         educts_coeff.append(-row['coefficient 2'])
         educts_coeff.append(-row['coefficient 3'])
         educts_coeff.append(-row['coefficient 4'])
+        educts_coeff.append(-row['coefficient 5'])
+        educts_coeff.append(-row['coefficient 6'])
+        educts_coeff.append(-row['coefficient 7'])
         educts_coeff = [x for x in educts_coeff if str(x) != 'nan']
         educts_raw_material_id = []
         missing_materials = []
@@ -178,12 +185,18 @@ def generate_processes_list_from_reference_sheet_and_raw_material_id(path: Path)
         coproducts.append(row['co-product 2'])
         coproducts.append(row['co-product 3'])
         coproducts.append(row['co-product 4'])
+        coproducts.append(row['co-product 5'])
+        coproducts.append(row['co-product 6'])
+        coproducts.append(row['co-product 7'])
         coproducts = [x for x in coproducts if str(x) != 'nan']
         coproducts_coeff = []
         coproducts_coeff.append(row['coefficient 1.1'])
         coproducts_coeff.append(row['coefficient 2.1'])
         coproducts_coeff.append(row['coefficient 3.1'])
         coproducts_coeff.append(row['coefficient 4.1'])
+        coproducts_coeff.append(row['coefficient 5.1'])
+        coproducts_coeff.append(row['coefficient 6.1'])
+        coproducts_coeff.append(row['coefficient 7.1'])
         coproducts_coeff = [x for x in coproducts_coeff if str(x) != 'nan']
         coproducts_raw_material_id = []
         coproducts_missing_materials = []
