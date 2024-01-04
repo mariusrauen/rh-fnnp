@@ -195,8 +195,8 @@ def generate_processes_list_from_reference_sheet_and_raw_material_id(path: Path)
         coproducts_coeff.append(row['coefficient 3.1'])
         coproducts_coeff.append(row['coefficient 4.1'])
         coproducts_coeff.append(row['coefficient 5.1'])
-        coproducts_coeff.append(row['coefficient 6.1'])
-        coproducts_coeff.append(row['coefficient 7.1'])
+        coproducts_coeff.append(row['coefficient 6'])
+        coproducts_coeff.append(row['coefficient 7'])
         coproducts_coeff = [x for x in coproducts_coeff if str(x) != 'nan']
         coproducts_raw_material_id = []
         coproducts_missing_materials = []
