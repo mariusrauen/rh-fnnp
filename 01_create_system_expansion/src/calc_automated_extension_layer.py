@@ -130,6 +130,8 @@ def create_system_expansion(matrixA: pd.DataFrame, output_file_path: str) -> Non
     matrixA.index.names=['name']
     raw_materials_x = raw_materials[['name', 'category', '[unit choice]']]
     matrixA = pd.merge(raw_materials_x, matrixA, on='name')
+    matrixA.loc[0, ['[unit choice]']] = "MJ" # Replace unit choice for thermal energy
+    matrixA.loc[1, ['[unit choice]']] = "MJ" # Replace unit choice for electricity
     process_meta_data = pd.DataFrame(index= ['abbrevtion','process description', 'mainflow', 'location (choice)', 
     'exact location','capacity', 'unit per year (choice)', 'comments', 'type'] , columns=list(index_processes['process']))
     process_meta_data.loc['mainflow',:] =  np.array(list(processes['main flow']))
