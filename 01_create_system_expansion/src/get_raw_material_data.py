@@ -9,6 +9,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
 from shutil import copyfile 
+from configparser import ConfigParser
+
+def read_in_config() -> ConfigParser:
+    """This function reads in the parameters specified in the config.ini file."""
+    config = ConfigParser()
+    config.read('config.ini')
+    return config
 
 @dataclass
 class CMProcess:
@@ -321,35 +328,36 @@ def get_data_for_addition_to_included_chemicals_file(input_path: Path, included_
 #         finally:
 #             dataframe.to_excel(writer, sheet_name=sheetname,index=None)
 #
-def main(path: Path | str) -> None:
-    included_chemicals_master = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/IncludedChemicals.xlsx"
-    meta_data_flows_master_file = "/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/00_inputData/meta_data_flows.xlsx"
+def main(path: Path | str, config: ConfigParser, chosen: str) -> None:
+
+    included_chemicals_master = Path(config['CM_CHEMICALS']['included_chemicals_master_file'])
+    meta_data_flows_master_file = Path(config['CM_CHEMICALS']['meta_data_flows_master_file'])
+
+    match chosen: 
+        case "1":
+            df = (
+                get_data_for_reference_sheet(INPUT_PATH, 'raw_material_id', included_chemicals_master, meta_data_flows_master_file)
+                .to_clipboard(index=None, header=None)
+            )
+        case "2":
+            reference_sheet = pd.read_excel(INPUT_PATH, sheet_name='reference')
+            reference_sheet['process'] = reference_sheet.apply(lambda x: f"reaction of {x['raw material 1']} and {x['raw material 2']}", axis=1)
+            # print(reference_sheet)
+            # print(reference_sheet.columns)
+            reference_sheet.loc[:,['process', 'main flow']].to_clipboard(index=None)
+        case "3":
+            df = (
+                get_data_for_addition_to_meta_data_flows_master_file(INPUT_PATH, 'raw_material_id', included_chemicals_master, meta_data_flows_master_file)
+                .to_clipboard(index=None, header=None)
+            )
+        case "4":
+            df = (
+                get_data_for_addition_to_included_chemicals_file(INPUT_PATH, included_chemicals_master, meta_data_flows_master_file)
+                .to_clipboard(index=None, header=None)
+            )
+        case _:
+            print('WRONG INPUT!')
    
-    # df = (
-    #     get_data_for_reference_sheet(INPUT_PATH, 'raw_material_id', included_chemicals_master, meta_data_flows_master_file)
-    #     .to_clipboard(index=None, header=None)
-    # )
-    # reference_sheet = pd.read_excel(INPUT_PATH, sheet_name='reference')
-    # reference_sheet['process'] = reference_sheet.apply(lambda x: f"reaction of {x['raw material 1']} and {x['raw material 2']}", axis=1)
-    # reference_sheet.loc[:,['process', 'main flow']].to_clipboard(index=None)
-    
-    # print(reference_sheet)
-    # print(reference_sheet.columns)
-    
-
-
-    # df = (
-    #     get_data_for_addition_to_meta_data_flows_master_file(INPUT_PATH, 'raw_material_id', included_chemicals_master, meta_data_flows_master_file)
-    #     .to_clipboard(index=None, header=None)
-    # )
-    df = (
-        get_data_for_addition_to_included_chemicals_file(INPUT_PATH, included_chemicals_master, meta_data_flows_master_file)
-        .to_clipboard(index=None, header=None)
-    )
-   
-
-
-
 #print(pd.read_excel(meta_data_flows_master_file).columns.values.tolist())
     # processes = generate_processes_list_from_reference_sheet_and_raw_material_id(path)
     # remove_water_from_processes(processes)
@@ -367,5 +375,12 @@ def main(path: Path | str) -> None:
 if __name__ == '__main__':
     # INPUT_PATH = Path("../xlsx/reaction_extension_layer.xlsx")
     INPUT_PATH = Path(sys.argv[1])
+    config = read_in_config()
     #INPUT_PATH = Path('../xlsx/')
-    main(INPUT_PATH)
+    print("Welcome Traveler!\n It is dangerous to go alone. Choose one of these: \n ")
+    print('1: Get Data for raw_materials sheet.')
+    print('2: Get Data for process_id sheet.')
+    print('3: Get Data for Additon to meta data flows master file.')
+    print('4: Get Data for Addition to Included Chemicals.')
+    chosen = input()
+    main(INPUT_PATH, config, chosen)
