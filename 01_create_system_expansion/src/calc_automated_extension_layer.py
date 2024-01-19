@@ -32,13 +32,15 @@ def carbon_content_check(matrix_table: pd.DataFrame) -> None:
     # The regular expression captures to groups: 
     # 1) uppercase C's with a at least one number f, C(\d+) OR
     # 2) uppercase C's with another uppercase letter following (C[A-Z]).
+    # 3) uppercase C without anything following it. (Carbon Black)
     #
     # These are captured by the str.extract method and return a dataframe with two columns representing both cases
     # In the first case, if the regex finds no match, no carbon is present or the second case is matched
     # Therefore we add both series together to get the final carbon content.
-    carbon_content_tmp = matrix_table['chemical formular'].str.extract(r'C(\d+)|(C[A-Z])', expand=True)
+    carbon_content_tmp = matrix_table['chemical formular'].str.extract(r'C(\d+)|(C[A-Z])|(^C$)', expand=True)
     carbon_content_s1 = carbon_content_tmp[1].fillna("0").map(lambda x: 0 if x=="0" else 1)
-    carbon_content_s2 = carbon_content_tmp[0].fillna(0).astype(int)+carbon_content_s1
+    carbon_content_s3 = carbon_content_tmp[2].fillna("0").map(lambda x: 0 if x=="0" else 1)
+    carbon_content_s2 = carbon_content_tmp[0].fillna(0).astype(int)+carbon_content_s1+carbon_content_s3
     carbon_content_check = pd.concat([matrix_table, carbon_content_s2], axis=1)
     carbon_content_check['carbon_content'] = carbon_content_check.coefficient*carbon_content_s2.astype(int)
     carbon_content_check.to_excel('../xlsx/carbon_content.xlsx')
@@ -130,6 +132,8 @@ def create_system_expansion(matrixA: pd.DataFrame, output_file_path: str) -> Non
     matrixA.index.names=['name']
     raw_materials_x = raw_materials[['name', 'category', '[unit choice]']]
     matrixA = pd.merge(raw_materials_x, matrixA, on='name')
+    matrixA.loc[0, ['[unit choice]']] = "MJ" # Replace unit choice for thermal energy
+    matrixA.loc[1, ['[unit choice]']] = "MJ" # Replace unit choice for electricity
     process_meta_data = pd.DataFrame(index= ['abbrevtion','process description', 'mainflow', 'location (choice)', 
     'exact location','capacity', 'unit per year (choice)', 'comments', 'type'] , columns=list(index_processes['process']))
     process_meta_data.loc['mainflow',:] =  np.array(list(processes['main flow']))
