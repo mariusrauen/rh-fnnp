@@ -13,15 +13,13 @@ from numpy import array
 # @dataclass
 # class Model:
 #     technical_flows: list[Flow]
-#     A_distribution:
-#     A_mean:
-#     A_std_dev:
+#     A_distribution: np.matrix
+#     A_mean: np.matrix
+#     A_std_dev: np.matrix
 #     factor_requirements:
 #     F_distribution:
 #     F_mean: np.array
-#     F_std_dev:
-#
-
+#     F_std_dev: np.matrix
 
 # Define Path Variables
 #working_path = Path().cwd()
