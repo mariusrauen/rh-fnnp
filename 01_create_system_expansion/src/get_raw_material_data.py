@@ -265,6 +265,7 @@ def get_data_for_reference_sheet(input_path: Path, sheet_name: str | int, includ
     result['molecular mass'] = result['molecular mass_x'].fillna(result['molecular mass_y'])
     result['SMILES'] = result['SMILES'].fillna(result['SMILES CODE'])
     result['[unit choice]'] = 'kg'
+    result.loc[0:1,'[unit choice]'] = 'MJ'
     result['name'] = result['raw materials']
     result['category'] = result['category_y']
     result['raw_material_id'] = list(range(len(result)))
