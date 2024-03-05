@@ -345,6 +345,7 @@ def main(path: Path | str, config: ConfigParser, chosen: str) -> None:
             reference_sheet['process'] = reference_sheet.apply(lambda x: f"reaction of {x['raw material 1']} and {x['raw material 2']}", axis=1)
             # print(reference_sheet)
             # print(reference_sheet.columns)
+            print(reference_sheet.loc[:,['process', 'main flow']])
             reference_sheet.loc[:,['process', 'main flow']].to_clipboard(index=None)
         case "3":
             df = (

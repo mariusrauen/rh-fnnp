@@ -321,7 +321,9 @@ def main(path: Path | str, config: ConfigParser) -> None:
     copyfile(INPUT_PATH, INPUT_PATH.with_stem("reaction_extension_layer_inputcopy"))
     # Add matrix to original input excel
     # write_frame_into_excelsheet(filename=INPUT_PATH, sheetname='matrix_table', dataframe=matrix)
+    print(matrix)
     matrix.to_excel(INPUT_PATH.with_stem("reaction_extension_layer_matrix"), sheet_name='matrix_table')
+    matrix.to_clipboard(index=None)
 
 if __name__ == '__main__':
     INPUT_PATH = Path(sys.argv[1])
