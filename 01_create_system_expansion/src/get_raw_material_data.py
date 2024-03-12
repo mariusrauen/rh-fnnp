@@ -265,6 +265,7 @@ def get_data_for_reference_sheet(input_path: Path, sheet_name: str | int, includ
     result['molecular mass'] = result['molecular mass_x'].fillna(result['molecular mass_y'])
     result['SMILES'] = result['SMILES'].fillna(result['SMILES CODE'])
     result['[unit choice]'] = 'kg'
+    result.loc[0:1,'[unit choice]'] = 'MJ'
     result['name'] = result['raw materials']
     result['category'] = result['category_y']
     result['raw_material_id'] = list(range(len(result)))
@@ -344,6 +345,7 @@ def main(path: Path | str, config: ConfigParser, chosen: str) -> None:
             reference_sheet['process'] = reference_sheet.apply(lambda x: f"reaction of {x['raw material 1']} and {x['raw material 2']}", axis=1)
             # print(reference_sheet)
             # print(reference_sheet.columns)
+            print(reference_sheet.loc[:,['process', 'main flow']])
             reference_sheet.loc[:,['process', 'main flow']].to_clipboard(index=None)
         case "3":
             df = (
