@@ -256,9 +256,9 @@ def get_header_for_meta_data_flows_master_file()->list[str]:
 
 def get_data_for_reference_sheet(input_path: Path, sheet_name: str | int, included_chemicals_master: Path | str, meta_data_flows_master_file: Path | str) -> pd.DataFrame:
     raw_mats = pd.read_excel(input_path, sheet_name=sheet_name)
-    all_cm = get_cm_db(included_chemicals_master, meta_data_flows_master_file)
+    all_cm_md = pd.read_excel(meta_data_flows_master_file)
     result = (
-        pd.merge(raw_mats, all_cm, how='left', left_on='raw materials', right_on= 'Included chemicals', validate='1:1')
+        pd.merge(raw_mats, all_cm_md, how='left', left_on='raw materials', right_on= 'name', validate='1:1')
     )
     result['CAS-Nr.'] = result['CAS-Nr._x'].fillna(result['CAS-Nr._y'])
     result['chemical formular'] = result['chemical formular'].fillna(result['chemical formular[C2C4 format]'])
