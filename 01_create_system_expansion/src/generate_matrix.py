@@ -10,6 +10,7 @@ logging.getLogger().setLevel(logging.INFO)
 from typing import Union
 from shutil import copyfile 
 import sys
+import os
 from configparser import ConfigParser
 
 @dataclass
@@ -30,7 +31,10 @@ class CMProcess:
 def read_in_config() -> ConfigParser:
     """This function reads in the parameters specified in the config.ini file."""
     config = ConfigParser()
-    config.read('config.ini')
+    if os.environ.get("DOCKER_INI"):
+        config.read('config-docker.ini')
+    else:
+        config.read('config.ini')
     return config
 
 def get_compound_cas_from_smile_or_name(query):
@@ -163,13 +167,13 @@ def generate_processes_list_from_reference_sheet_and_raw_material_id(path: Path)
         educts.append(row['raw material 4'])
         educts = [x for x in educts if str(x) != 'nan']
         educts_coeff = []
-        educts_coeff.append(-row['coefficient 1'])
-        educts_coeff.append(-row['coefficient 2'])
-        educts_coeff.append(-row['coefficient 3'])
-        educts_coeff.append(-row['coefficient 4'])
-        educts_coeff.append(-row['coefficient 5'])
-        educts_coeff.append(-row['coefficient 6'])
-        educts_coeff.append(-row['coefficient 7'])
+        educts_coeff.append(-row['rcoefficient 1'])
+        educts_coeff.append(-row['rcoefficient 2'])
+        educts_coeff.append(-row['rcoefficient 3'])
+        educts_coeff.append(-row['rcoefficient 4'])
+        educts_coeff.append(-row['rcoefficient 5'])
+        educts_coeff.append(-row['rcoefficient 6'])
+        educts_coeff.append(-row['rcoefficient 7'])
         educts_coeff = [x for x in educts_coeff if str(x) != 'nan']
         educts_raw_material_id = []
         missing_materials = []
@@ -190,11 +194,11 @@ def generate_processes_list_from_reference_sheet_and_raw_material_id(path: Path)
         coproducts.append(row['co-product 7'])
         coproducts = [x for x in coproducts if str(x) != 'nan']
         coproducts_coeff = []
-        coproducts_coeff.append(row['coefficient 1.1'])
-        coproducts_coeff.append(row['coefficient 2.1'])
-        coproducts_coeff.append(row['coefficient 3.1'])
-        coproducts_coeff.append(row['coefficient 4.1'])
-        coproducts_coeff.append(row['coefficient 5.1'])
+        coproducts_coeff.append(row['coefficient 1'])
+        coproducts_coeff.append(row['coefficient 2'])
+        coproducts_coeff.append(row['coefficient 3'])
+        coproducts_coeff.append(row['coefficient 4'])
+        coproducts_coeff.append(row['coefficient 5'])
         coproducts_coeff.append(row['coefficient 6'])
         coproducts_coeff.append(row['coefficient 7'])
         coproducts_coeff = [x for x in coproducts_coeff if str(x) != 'nan']

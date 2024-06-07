@@ -1,15 +1,15 @@
 import pandas as pd
 import numpy as np
-import math
-import xlsxwriter
-import pyodbc
-import pyarrow.parquet as pq
-import pyarrow as pa
-import scipy as sps
+#import math
+#import xlsxwriter
+#import pyodbc
+#import pyarrow.parquet as pq
+#import pyarrow as pa
+#import scipy as sps
 from scipy import sparse
 from numpy import array
-from scipy.sparse import coo_matrix
-import os
+#from scipy.sparse import coo_matrix
+#import os
 
 def load_prepare_data(input_file_path: str) -> pd.DataFrame:
     """Loads the prepared chemical reactions excel document into a pandas Dataframe."""
