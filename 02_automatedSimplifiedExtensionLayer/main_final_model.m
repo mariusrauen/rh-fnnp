@@ -2,10 +2,11 @@
 % Original Author: Raoul.Meys@carbon-minds.com
 % Edits and Responsibility: Laura.Stellner@carbon-minds.com
 
-% make sure you are in the right folder where also this code is stored 
-clear
+% Make sure you are in the correct folder where code is stored
+clear 
 clc
 
+% Get current directory and generate file path 
 workingPath = pwd;
 addpath(genpath(pwd));
 
@@ -50,8 +51,7 @@ file_list = dir(fullfile(pathInput,'dummy_IHS\')); % delete void entries
 
 file_list = file_list(~cell2mat({file_list.isdir}));
 
-%% remove hidden fields 
-
+%% Remove hidden fields 
 index = [];
 for i = 1:length(file_list)
     if ~strcmp(file_list(i).name(1),'.')
@@ -63,7 +63,6 @@ file_list = file_list(index);
 
 
 %% main loop to include excel files
-
 for i = 1:length(file_list)
     % read file 
     [~,~,file] = xlsread(fullfile(pathInput,'dummy_IHS\',file_list(i).name));

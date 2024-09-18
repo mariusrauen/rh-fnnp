@@ -3,20 +3,12 @@ from pprint import pprint
 import numpy as np
 import pandas as pd
 import re
-from dataclasses import dataclass
 from pathlib import Path
 import logging
+
+from utils.cm_classes import Stream
 #from utils.convert_units import convert_units
 
-@dataclass
-class Stream:
-    name: tuple[str]
-    cost: tuple[float]
-    cost_unit: tuple[str]
-    amount: tuple[float]
-    amount_unit: tuple[str]
-    cost_per_kg: tuple[float]
-    class_: tuple[int] = 1 
 
 def convert_units(streams: list[Stream]) -> None:
     """This normalizes the units of the input streams, which are generated with the get_streams function."""
