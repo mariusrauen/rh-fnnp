@@ -49,11 +49,14 @@ pathFunctions = fullfile(workingPath,'..','00_matlab','functions');
 addpath(genpath(pathFunctions));
 """
 # Get current directory and generate file path
-# TODO Change hard coded path to e.g. working_path = Path().cwd()
+# TODO Change hard coded path to e.g. 
+#working_path = Path().cwd()
+#sys.path.append(str(working_path))
 working_path = Path("/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/09 cm_chemicals database code/00_DatabaseGeneration/02_techModels/04_simplifiedExtensionLayer")
 # TODO IMPORT FUNCTIONS:
 pathfunctions = Path().relative_to("../02_matlab/functions")
-
+# add functions path and subdirectories to sys.path?
+#sys.path.append(str(path_functions))
 
 
 """
