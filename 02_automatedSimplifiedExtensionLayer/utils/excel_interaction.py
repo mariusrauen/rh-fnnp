@@ -48,7 +48,7 @@ def read_from_excel_cell(path: Path, sheet: str|int, row: int, column: int) -> s
     else:
         path = Path(path)
 
-    workbook = load(workbook)
+    workbook = load_workbook(workbook) # or load(workbook)
 
     # Use match case to get the specified sheet
     match sheet:

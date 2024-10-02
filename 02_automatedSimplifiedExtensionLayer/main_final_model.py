@@ -24,6 +24,15 @@ from utils.excel_interaction import read_from_excel_cell
 from utils.get_streams import Stream, get_streams
 from utils.get_costs import get_costs
 from utils.get_info import get_info
+from utils.write2model import write2model
+from utils.add_Q_B import add_Q_B
+from utils.clean_up_TM_symbols import clean_up_TM_symbols
+from utils.get_process_adding import get_process_adding
+from utils.make_process_adding_V2 import make_process_adding_V2
+from utils.get_missing_meta_data import get_missing_meta_data
+from utils.make_flow_revision import make_flow_revision
+from utils.make_waste_and_elementary_flows import make_waste_and_elementary_flows
+
 
 # Predefine data class
 # @dataclass
@@ -208,7 +217,7 @@ Model = write2model(process_list)
 Model = add_Q_B(Model,pathInputPreprocessing);
 '''
 # Add Q and empty B matrix, TODO: place actual function for add_Q_B()
-Model = add_Q_B(Model, path_input_preprocessing)
+Model = add_Q_B(Model, pathInputPreprocessing)
 
 
 
