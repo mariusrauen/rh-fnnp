@@ -27,7 +27,7 @@ def write2model(process_list):
             process_info.exact_location,
             process_info.capacity,
             process_info.unit_per_year,
-            '', ''
+            '', ''  # Comments and type placeholders
         ])
 
         # Technical Flows
@@ -39,6 +39,7 @@ def write2model(process_list):
                     technical_flows[j][1] == stream.stream_class or k == 1 and 
                     technical_flows[j][5] == stream.amount_unit):
 
+                    # Ensure lists are large enough
                     if len(A_distribution) <= j:
                         A_distribution.append([None] * len(process_list))
                         A_mean.append([None] * len(process_list))
@@ -50,7 +51,7 @@ def write2model(process_list):
                     flag = 0
                     break
 
-            # Add new flow to technical_flows
+            # Add new flow to technical_flows if not found
             if flag:
                 stream = process_list[i].streams[k]
                 technical_flow_entry = [
@@ -65,6 +66,7 @@ def write2model(process_list):
                 ]
                 technical_flows.append(technical_flow_entry)
 
+                # Update distributions and mean values
                 j = len(technical_flows) - 1
                 A_distribution.append([None] * len(process_list))
                 A_mean.append([None] * len(process_list))
@@ -74,7 +76,7 @@ def write2model(process_list):
                 A_mean[j][i] = stream.amount if not np.isnan(stream.amount) else stream.cost_per_kg
                 A_std_dev[j][i] = 0
 
-        # Factor requirements
+        # Factor requirement flows
         for k in range(len(process_list[i].costs)):
             flag = 1
             for j in range(len(factor_requirements)):
@@ -91,7 +93,7 @@ def write2model(process_list):
                     flag = 0
                     break
 
-            # Add new flow to factor_requirements
+            # Add new flow to factor_requirements if not found
             if flag:
                 cost = process_list[i].costs[k]
                 factor_requirement_entry = [cost.name, cost.unit, '']
@@ -111,7 +113,7 @@ def write2model(process_list):
     k_distribution = [[2] for _ in range(len(F_mean))]
     k_std_dev = [[0] for _ in range(len(F_mean))]
 
-    # Add legend to tables
+    # Add legends
     tech_name = [
         ['name', 'category', 'concentration/purity', 'CAS-Nr.', 'unit(choice)', 
          '[unit choice]', 'Market price', 'LHV', 'HHV', 'chemical formula', 
@@ -126,7 +128,7 @@ def write2model(process_list):
     ]
     
     req_names = [['name', 'unit', 'comment']]
-    cost_name = [['name', 'cost']]
+    cost_name = [['name', 'cost']]  # Defined cost_name to be used with cost-related data
 
     # Concatenate legends with actual data
     processes = process_names + processes
@@ -147,9 +149,16 @@ def write2model(process_list):
     F_mean = np.array(F_mean)
     Model['matrices']['F'] = {'mean_values': F_mean}
 
-    # Same for k_mean
+    # Same for k_mean, k_distribution, k_std_dev
     k_mean = [[0 if item is None else item for item in row] for row in k_mean]
     k_mean = np.array(k_mean)
-    Model['matrices']['k'] = {'mean_values': k_mean}
+    Model['matrices']['k'] = {
+        'mean_values': k_mean,
+        'distribution': np.array(k_distribution),
+        'std_dev': np.array(k_std_dev)
+    }
+
+    # Use cost_name to create a table or include it in the Model
+    Model['meta_data_costs'] = cost_name  # Added cost_name as part of Model
 
     return Model
