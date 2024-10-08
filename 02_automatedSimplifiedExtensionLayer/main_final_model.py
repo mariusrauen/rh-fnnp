@@ -14,6 +14,7 @@ clc
 import logging
 import numpy as np
 import pandas as pd
+import scipy.io as sio
 from pathlib import Path
 #from pprint import pprint
 #from numpy import array
@@ -22,7 +23,6 @@ from scipy.io import loadmat
 
 #from utils.excel_interaction import read_from_excel_cell
 from utils.get_streams import Stream, get_streams
-
 from utils.get_costs import get_costs
 from utils.get_info import get_info
 from utils.write2model import write2model
@@ -37,6 +37,11 @@ from utils.generic_process_description_Layer3 import generic_process_description
 from utils.perform_check_before_allocation import perform_check_before_allocation
 from utils.get_energy_matrix_A import get_energy_matrix_A
 from utils.get_price_matrix_A import get_price_matrix_A
+from utils.perform_allocation import perform_allocation
+from utils.TransferModelToProcessAdding import TransferModelToProcessAdding
+from utils.make_process_adding_V2_Layer23 import make_process_adding_V2_Layer23
+from utils.make_ecoinvent_one_addition import make_ecoinvent_one_addition
+from utils.check_model_Ecoinvent import check_model_Ecoinvent
 
 
 
@@ -507,10 +512,8 @@ if ~isequal(size(alloc_procedure,2),size(A,2))
 end
 '''
 # Check if the number of elements in alloc_procedure matches the number of columns in A
-if alloc_procedure.size != A.shape[1]:
+if alloc_procedure.shape[1] != A.shape[1]:
     print('PROBLEM WITH MULTIFUNCTIONALITY --> SCRIPT STOPPED. DISCUSS IN GROUP')
-    # Exit the function or script
-    return
 
 
 
@@ -872,7 +875,6 @@ AddLayer2InclEcoinvent = TransferModelToProcessAdding(Model)
 Model_Layer1_and_2_and_3 = make_process_adding_V2_Layer23(Model_Ecoinvent_Layer1_and_2, AddLayer2InclEcoinvent)
 
 
-
 '''
 % get meta data
 [missing_meta_data] = get_missing_meta_data(pathGlobalInput);
@@ -1033,9 +1035,6 @@ writecell([[Model.meta_data_factor_requirements(1,:),Model.meta_data_processes(1
     fullfile(pathOutput,'SystemExpansion.xlsx'),'Sheet','SUMMARY F');
 rmpath(genpath(pathFunctions));
 '''
-import scipy.io as sio
-import pandas as pd
-import os
 # Paths for saving the outputs
 model_save_path = pathOutput / f"{ModelName}.mat"
 model_custom_save_path = pathOutput / f"{ModelName}_CustomTesting.mat"
