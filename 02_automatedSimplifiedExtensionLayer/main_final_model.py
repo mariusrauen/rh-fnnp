@@ -16,13 +16,10 @@ import numpy as np
 import pandas as pd
 import scipy.io as sio
 from pathlib import Path
-#from pprint import pprint
-#from numpy import array
-#from dataclasses import dataclass, field
 from scipy.io import loadmat
 
 #from utils.excel_interaction import read_from_excel_cell
-from utils.get_streams import Stream, get_streams
+from utils.get_streams import get_streams
 from utils.get_costs import get_costs
 from utils.get_info import get_info
 from utils.write2model import write2model
@@ -45,6 +42,7 @@ from utils.check_model_Ecoinvent import check_model_Ecoinvent
 
 
 
+'''
 # Predefine data class
 # @dataclass
 # class Model:
@@ -56,9 +54,14 @@ from utils.check_model_Ecoinvent import check_model_Ecoinvent
 #     F_distribution:
 #     F_mean: np.array
 #     F_std_dev: np.matrix
+'''
+
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+
+
 
 """
 % Get current directory and generate file path
@@ -77,6 +80,7 @@ working_path = Path("/mnt/c/Users/Jonas/Carbon Minds GmbH/Business - Dokumente/0
 pathfunctions = Path().relative_to("../02_matlab/functions")
 # add functions path and subdirectories to sys.path?
 #sys.path.append(str(path_functions))
+
 
 
 """
@@ -165,7 +169,7 @@ for file in file_list:
 
 
 
-"""
+'''
 %% main loop to include excel files
 for i = 1:length(file_list)
     % read file 
@@ -176,7 +180,8 @@ for i = 1:length(file_list)
     process_list(i).costs = get_costs(file);
     process_list(i).info = get_info(file);   
 end
-"""
+'''
+'''
 # Prepatory work from Jonas
 #[num,txt,raw] = xlsread('myExample.xlsx')
 # num =
@@ -200,6 +205,7 @@ end
 #     process_list(i).costs = get_costs(file);
 #     process_list(i).info = get_info(file);   
 # end 
+'''
 process_list = []
 for file in file_list:
     print(get_streams(file))
@@ -591,6 +597,7 @@ Amatrixforallocationfactors[:, mass] = A_alloc_mass[:, mass]
 Amatrixforallocationfactors[:, prices] = A_alloc_price[:, prices]
 
 
+
 '''
 %% ALLOCATION
 % Amatrixforallocationfactors = A_alloc_mass;
@@ -630,6 +637,7 @@ if np.any(np.sum(output['A'] > 0, axis=0) > 1):
     print('PROBLEM WITH MULTIFUNCTIONALITY --> SCRIPT STOPPED. DISCUSS IN GROUP')
     # Here we could raise an exception to stop the script
     raise RuntimeError('Multifunctionality issue detected in allocation.')
+
 
 
 '''
@@ -873,6 +881,7 @@ AddLayer2InclEcoinvent = TransferModelToProcessAdding(Model)
 # Combine models using the assumed defined function
 # TODO place actual function make_process_adding_V2_Layer23()
 Model_Layer1_and_2_and_3 = make_process_adding_V2_Layer23(Model_Ecoinvent_Layer1_and_2, AddLayer2InclEcoinvent)
+
 
 
 '''
@@ -1140,10 +1149,5 @@ if not flows_missingLHV_price.empty or not problematic_processes_price.empty:
     print('1. Add the LHV value in G:\\Geteilte Ablagen\\09a_NEW_cm_chemicals_data\\01_final_technology_datasets\\00b_alignments\\meta_data_flows.xlsx')
     print('2. Change the allocation type in the corresponding System Expansion.xlsx (Sheet:Process_meta_data, row:type) in REVISED_CHEMICALS from 1(=energy allocation) to 2(=mass allocation)')
 print('DONE')
-
-
-
-
-
 
 
