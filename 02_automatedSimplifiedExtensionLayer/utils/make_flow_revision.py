@@ -1,4 +1,11 @@
 from perform_flow_revision import perform_flow_revision
+from work_done_CAS import work_done_CAS
+from work_done_formular import work_done_formular
+from work_done_Hv import work_done_Hv
+from work_done_SMILES import work_done_SMILES
+from get_meta_data_to_update import get_meta_data_to_update
+from get_flow_analysis import get_flow_analysis
+
 
 def make_flow_revision(Model, missing_meta_data):
     # Flow revision

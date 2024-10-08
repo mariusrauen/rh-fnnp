@@ -33,6 +33,11 @@ from utils.make_process_adding_V2 import make_process_adding_V2
 from utils.get_missing_meta_data import get_missing_meta_data
 from utils.make_flow_revision import make_flow_revision
 from utils.make_waste_and_elementary_flows import make_waste_and_elementary_flows
+from utils.generic_process_description_Layer3 import generic_process_description_Layer3
+from utils.perform_check_before_allocation import perform_check_before_allocation
+from utils.get_energy_matrix_A import get_energy_matrix_A
+from utils.get_price_matrix_A import get_price_matrix_A
+
 
 
 # Predefine data class
@@ -344,7 +349,7 @@ disp('Process description is generated automatically.');
 # Include process descriptions
 logging.info('Process description is generated automatically.')
 # Generate and add process descriptions to the model
-Model = generic_process_description_layer3(Model)
+Model = generic_process_description_Layer3(Model)
 
 
 
@@ -410,6 +415,7 @@ meta_data_flows = meta_data_flows[~zero_prepended]  # Keep rows where the mask i
 print('Meta data of flows is updated...')
 
 
+
 '''
 %% Before performing allocation, Test if all flows used in energy allocation have a LHV >0
 [flows_missingLHV_energy,problematic_processes_energy,flows_missingLHV_price,problematic_processes_price] =  perform_check_before_allocation(Model);
@@ -468,7 +474,6 @@ A_alloc_mass(A_alloc_mass<0) = 0;
 A_alloc_mass = np.copy(A)  # Create a copy of A to avoid modifying the original
 A_alloc_mass[A_alloc_mass < 0] = 0  # Set all negative values to 0
 # Placeholder for energy allocation matrix and price allocation matrix functions
-# TODO place actual get_energy_matrix() and get_price_matrix()
 A_alloc_energy, _ = get_energy_matrix_A(Model)  # Assume this function returns two values; ignoring the second with _
 Model, A_alloc_price, _ = get_price_matrix_A(Model)  # Assume this function modifies Model and returns two more values
 

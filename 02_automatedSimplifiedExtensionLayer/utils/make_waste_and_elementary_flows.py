@@ -1,6 +1,8 @@
 import scipy.io as sio
 import os
 
+from get_waste_and_elementary_flows_direct_emissions import get_waste_and_elementary_flows_direct_emissions
+
 def make_waste_and_elementary_flows(Model, path_inputs):
     # Load the .mat files
     elements = sio.loadmat(os.path.join(path_inputs, 'elements.mat'))['elements']
