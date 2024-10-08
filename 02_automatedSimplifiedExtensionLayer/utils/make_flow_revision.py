@@ -1,3 +1,5 @@
+from perform_flow_revision import perform_flow_revision
+
 def make_flow_revision(Model, missing_meta_data):
     # Flow revision
     Model = perform_flow_revision(Model, missing_meta_data)
