@@ -1,16 +1,34 @@
 [tool.poetry]
-name = "mtop"
+name = "fnnproject"
 version = "0.1.0"
-description = "Converting MATLAB to Python"
-authors = ["Rauen, Marius"]
+description = "Semester project"
+authors = ["Rauen, Marius <marius.rauen@rfh-campus.de>"]
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
-python = "3.10.12"
+python = "^3.12"
 pandas = "^2.2.2"
 numpy = "^2.1.1"
 openpyxl = "^3.1.5"
+scikit-learn = "^1.5.2"
+matplotlib = "^3.9.2"
+seaborn = "^0.13.2"
+tensorflow = "^2.17.0"
+autokeras = "^2.0.0"
+ipykernel = "^6.29.5"
+cvxopt = "^1.3.2"
+pyqt5 = "^5.15.11"
+pyqt6 = "^6.7.1"
+opencv-python = "^4.10.0.84"
+imgaug = "^0.4.0"
+image = "^1.5.33"
+pillow = "^10.4.0"
+mitdeeplearning = "^0.6.1"
+pygame = "^2.6.1"
+pytest = "^8.3.3"
+pytest-xdist = "^3.6.1"
+nbmake = "^1.5.4"
+jupyter = "^1.1.1"
 
 
 
