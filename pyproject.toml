@@ -1,37 +1,31 @@
 [tool.poetry]
-name = "fnnproject"
+name = "cm mtop project"
 version = "0.1.0"
-description = "Semester project"
-authors = ["Rauen, Marius <marius.rauen@rfh-campus.de>"]
+description = "Convert MATLAB to Python"
+authors = ["Rauen, Marius <marius.rauen@carbon-minds.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10"
 pandas = "^2.2.2"
-numpy = "^2.1.1"
-openpyxl = "^3.1.5"
+numpy = "^1.26.0"
+openpyxl = "^3.1.0"
 scikit-learn = "^1.5.2"
-matplotlib = "^3.9.2"
+matplotlib = "^3.8.0"
 seaborn = "^0.13.2"
-tensorflow = "^2.17.0"
+tensorflow = "^2.15.0"
 autokeras = "^2.0.0"
 ipykernel = "^6.29.5"
-cvxopt = "^1.3.2"
-pyqt5 = "^5.15.11"
-pyqt6 = "^6.7.1"
 opencv-python = "^4.10.0.84"
-imgaug = "^0.4.0"
-image = "^1.5.33"
-pillow = "^10.4.0"
 mitdeeplearning = "^0.6.1"
-pygame = "^2.6.1"
 pytest = "^8.3.3"
 pytest-xdist = "^3.6.1"
 nbmake = "^1.5.4"
 jupyter = "^1.1.1"
-
-
+cvxopt = "^1.3.2"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+

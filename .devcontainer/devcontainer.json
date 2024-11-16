@@ -14,7 +14,9 @@
     },
     "extensions": [
         "ms-python.python",
-        "ms-python.vscode-pylance"
+        "ms-python.vscode-pylance",
+        "ms-python.python",
+        "ms-toolsai.jupyter"
     ],
     "remoteUser": "root",
     "mounts": [

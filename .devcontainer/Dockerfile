@@ -1,5 +1,5 @@
 # Use the official Python image as a base
-FROM python:3.12-slim
+FROM python:3.10-slim
 
 # Set the working directory inside the container
 WORKDIR /workspace/
