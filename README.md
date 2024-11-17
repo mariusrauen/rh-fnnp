@@ -1,14 +1,45 @@
-# README INTRODUCTION
-This README contains information regarding the features used in this data set.
+# **INTRODUCTION** 
+Original Author: marius.rauen@rfh-campus.de
+
+This README contains information regarding the project structure and the processed data (Introduction), and the software exectuion (Instruction).
 For this Data Science task, the Hadley-Wickham method is used to investigate the data provided by the 'Electricity System Operator' (ESO) and by 'Strom- und Gasmarktdaten' (SMARD) of the German 'Bundesnetzagentur. The method steps of Hadley-Wickham are shown in the image below.
 
+#### AIM:
+To be filled ... 
+
+
 Sources of the raw data (2024/09/28):
-https://www.neso.energy/, 
+| Name                                                      | Source                                                                                    | 
+|-----------------------------------------------------------|-------------------------------------------------------------------------------------------|  
+| **National Energy System Operator (ESO) (UK)**            | https://www.neso.energy/                                                                  |                                           
+| Daily Balancing Services Use of System (BSUoS) Cost Data  | https://www.neso.energy/data-portal/daily-balancing-costs-balancing-services-use-system   |
+| Daily Balancing Services Use of System (BSUoS) Volume Data| https://www.neso.energy/data-portal/daily-balancing-volume-balancing-services-use-system  |
+| Historic Demand Data                                      | https://www.neso.energy/data-portal/historic-demand-data                                  |
+| Historic generation mix and carbon intensity              | https://www.neso.energy/data-portal/historic-generation-mix                               |
+| System Inertia                                            | https://www.neso.energy/data-portal/system-inertia                                        |
+| **Strom- und Gasmarkdaten (SMARD) (GER)**                 | https://www.smard.de/home/downloadcenter/download-marktdaten/                             |
+| Physikalischer Stromfluss                                 | Link -> Oberkategorie: Markt                                                              |
+| Realisierte Erzeugung                                     | Link -> Oberkategorie: Stromerzeugung                                                     |
+| Realisierter Stromverbrauch                               | Link -> Oberkategorie: Stromverbrauch                                                     |
+| Ausgleichsenergie                                         | Link -> Oberkategorie: Systemstabilitaet                                                  |
+| Exportierte Regelenergie                                  | Link -> Oberkategorie: Systemstabilitaet                                                  |
+| Importierte Regelenergie                                  | Link -> Oberkategorie: Systemstabilitaet                                                  |
+| Kosten                                                    | Link -> Oberkategorie: Systemstabilitaet                                                  |
+| Minutenreserve                                            | Link -> Oberkategorie: Systemstabilitaet                                                  |
+| Primaerregelreserve                                       | Link -> Oberkategorie: Systemstabilitaet                                                  |
+| Sekundaerregelreserve                                     | Link -> Oberkategorie: Systemstabilitaet                                                 \ |
+
+
 https://www.smard.de/home
 
 ![Dashboard Screenshot](./data/figures/Hadley-Wickham-method.png)
 
+# **INSTRUCTION**
+> **Get project from https://github.com/mariusrauen/rh-fnnp and connect Docker environment.** 
 
+> **Run DataPreperation.py to generate the data for the steps Visualise, Model and Communicate.**
+
+> **After that, execute the jupyter notebooks for Visualise, Communicate and Model in the order as listed in this README.**
 
 # classImporter.py
 Contains the **Importer*** class to import data from national grid 'Electricity System Operator' (ESO) of Great Britain (GB) and from 'Bundesnetzagentur' in Germany.
@@ -52,26 +83,25 @@ Contains a **DataProcessor** class combining the code of Import, Tidy and Transf
 
 
 # **NOTE**
-> **Up this point, the project is processed with python scripts (.py). Further model tasks Visualization, Modelling, Communication will be handled with Jupyter Notebooks (.ipnyb). Information and results are saved to the 'processed' directory.**
+> **Up this point, the project steps Import, Tidy and Transform are processed with python scripts (.py). Further model steps Visualization, Modelling and Communication are handled with Jupyter Notebooks (.ipnyb). Information and results are saved to the directory that is named 'processed'.**
  
 
 
-
 # classVisualizer.ipnyb
-
+In this project step, the prepared data are inspected.
 
 
 # classModeler.ipnyb
-
+Build a ML regression and a LSTM.
 
 
 # classCommunicator.ipnyb
+The Communicator is a framework to present insights in an effective and clear way. It reports and visualizes the output of a data science project.
 
-
-# Timetrack
+# **TIME**
 Target: 6CP = 6 x 25h = 150h
 
-Lecture: CW37 (2024/09/09) until CW52 (2024/12/23) = 16 weeks with 3h/week = 48h - 6h (canceled lectures) = 43h
+Lecture: CW37 (2024/09/09) until CW52 (2024/12/23) = 16 weeks with 3h/week = 48h - 6h (canceled lectures) = 42h
 
 Project:
 
