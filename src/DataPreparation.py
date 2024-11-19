@@ -112,19 +112,17 @@ class DataProcessor:
 
         self.df_dict = self.trans.prepare_for_regression(self.df_dict)
 
+        #self.df_dict = self.trans.normalize(self.df_dict)
+
         df_eso = self.trans.merge_dataframes(self.df_dict, ['df_bc', 'df_bv', 'df_dd', 'df_dd', 'df_ci', 'df_si'])
         df_smard = self.trans.merge_dataframes(self.df_dict, ['df_gcf', 'df_ss'])
-        
-        #MAYBE DELETE
-        #self.trans.verify_numeric(df_eso)
-        #self.trans.verify_numeric(df_smard)
-
+                
         logging.info(f'Shape of final ESO {df_eso.shape}')
-        #logging.info(f'Columns of final ESO {df_eso.columns}')
         logging.info(f'Shape of final SMARD {df_smard.shape}')
-        #logging.info(f'Columns of final ESO {df_smard.columns}')
 
         self.save_dataframes_to_csv(df_eso, df_smard)
+
+        
 
     def save_dataframes_to_csv(self, df_eso, df_smard):
         """
@@ -152,20 +150,5 @@ def main():
     processor.process_all_data()
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

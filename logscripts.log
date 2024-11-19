@@ -1,87 +1,87 @@
-2024-11-17 19:26:52,912 - 20 - 55 - DataPreparation - Initialize classes successful
-2024-11-17 19:26:52,912 - 20 - 21 - classMetaData - Get meta data
-2024-11-17 19:26:53,302 - 20 - 59 - classImporter - Successfully combined 8 DataFrames
-2024-11-17 19:26:54,193 - 20 - 53 - classTransfomer - Creation of ID column for ESO df with 30min LOGs successful
-2024-11-17 19:26:54,231 - 20 - 112 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
-2024-11-17 19:26:54,252 - 20 - 71 - DataPreparation - Return df (130025, 7) eso_daily-balancing-services-use-of-system-cost-data
-2024-11-17 19:26:54,614 - 20 - 59 - classImporter - Successfully combined 8 DataFrames
-2024-11-17 19:26:55,528 - 20 - 53 - classTransfomer - Creation of ID column for ESO df with 30min LOGs successful
-2024-11-17 19:26:55,563 - 20 - 112 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
-2024-11-17 19:26:55,585 - 20 - 71 - DataPreparation - Return df (130025, 9) eso_daily-balancing-services-use-of-system-volume-data
-2024-11-17 19:26:56,475 - 20 - 59 - classImporter - Successfully combined 16 DataFrames
-2024-11-17 19:26:58,237 - 20 - 53 - classTransfomer - Creation of ID column for ESO df with 30min LOGs successful
-2024-11-17 19:26:58,313 - 20 - 112 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
-2024-11-17 19:26:58,358 - 20 - 71 - DataPreparation - Return df (130080, 20) eso_historic-demand-data
-2024-11-17 19:26:59,648 - 20 - 59 - classImporter - Successfully combined 1 DataFrames
-2024-11-17 19:27:05,786 - 20 - 69 - classTransfomer - Creation of ID column for ESO df with 30min LOGs successful
-2024-11-17 19:27:05,859 - 20 - 112 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
-2024-11-17 19:27:05,926 - 20 - 71 - DataPreparation - Return df (130080, 32) eso_historic-generation-mix-and-carbon-intensity
-2024-11-17 19:27:06,243 - 20 - 59 - classImporter - Successfully combined 8 DataFrames
-2024-11-17 19:27:07,176 - 20 - 53 - classTransfomer - Creation of ID column for ESO df with 30min LOGs successful
-2024-11-17 19:27:07,211 - 20 - 112 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
-2024-11-17 19:27:07,218 - 20 - 71 - DataPreparation - Return df (129848, 3) eso_system-inertia
-2024-11-17 19:27:11,492 - 20 - 103 - classImporter - Successfully combined 3 DataFrames
-2024-11-17 19:27:18,627 - 20 - 89 - classTransfomer - Creation of ID column for SMARD df with 30min LOGs successful
-2024-11-17 19:27:18,767 - 20 - 112 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
-2024-11-17 19:27:18,863 - 20 - 86 - DataPreparation - Return df (130080, 39) smard_market-data_generation+consumption+physical-power-flow_GER
-2024-11-17 19:27:23,812 - 20 - 103 - classImporter - Successfully combined 7 DataFrames
-2024-11-17 19:27:31,019 - 20 - 89 - classTransfomer - Creation of ID column for SMARD df with 30min LOGs successful
-2024-11-17 19:27:31,142 - 20 - 112 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
-2024-11-17 19:27:31,211 - 20 - 86 - DataPreparation - Return df (130080, 28) smard_market-data_system-stability_GER
-2024-11-17 19:27:31,212 - 20 - 109 - DataPreparation - Mismatches analyzed
-2024-11-17 19:27:31,217 - 30 - 187 - classTransfomer - Found 14 duplicate IDs in df_bc
-2024-11-17 19:27:31,228 - 30 - 187 - classTransfomer - Found 14 duplicate IDs in df_bv
-2024-11-17 19:27:31,240 - 30 - 187 - classTransfomer - Found 14 duplicate IDs in df_dd
-2024-11-17 19:27:31,258 - 30 - 187 - classTransfomer - Found 12 duplicate IDs in df_si
-2024-11-17 19:27:31,268 - 30 - 187 - classTransfomer - Found 14 duplicate IDs in df_gcf
-2024-11-17 19:27:31,343 - 30 - 187 - classTransfomer - Found 14 duplicate IDs in df_ss
-2024-11-17 19:27:31,568 - 20 - 195 - classTransfomer - df_bc has 130011 unique IDs
-2024-11-17 19:27:31,792 - 20 - 195 - classTransfomer - df_bv has 130011 unique IDs
-2024-11-17 19:27:32,052 - 20 - 195 - classTransfomer - df_dd has 130066 unique IDs
-2024-11-17 19:27:32,492 - 20 - 195 - classTransfomer - df_ci has 130080 unique IDs
-2024-11-17 19:27:32,638 - 20 - 195 - classTransfomer - df_si has 129836 unique IDs
-2024-11-17 19:27:32,958 - 20 - 195 - classTransfomer - df_gcf has 130066 unique IDs
-2024-11-17 19:27:33,326 - 20 - 195 - classTransfomer - df_ss has 130066 unique IDs
-2024-11-17 19:27:33,515 - 20 - 199 - classTransfomer - Found 129767 common IDs across all DataFrames
-2024-11-17 19:27:33,565 - 30 - 209 - classTransfomer - df_bc has 244 extra IDs not in common set
-2024-11-17 19:27:33,565 - 10 - 210 - classTransfomer - Sample of extra IDs in df_bc: [Timestamp('2018-03-25 02:00:00'), Timestamp('2018-03-25 02:30:00'), Timestamp('2019-03-31 02:00:00'), Timestamp('2019-03-31 02:30:00'), Timestamp('2020-03-29 02:00:00')]
-2024-11-17 19:27:33,618 - 30 - 209 - classTransfomer - df_bv has 244 extra IDs not in common set
-2024-11-17 19:27:33,619 - 10 - 210 - classTransfomer - Sample of extra IDs in df_bv: [Timestamp('2018-03-25 02:00:00'), Timestamp('2018-03-25 02:30:00'), Timestamp('2019-03-31 02:00:00'), Timestamp('2019-03-31 02:30:00'), Timestamp('2020-03-29 02:00:00')]
-2024-11-17 19:27:33,667 - 30 - 209 - classTransfomer - df_dd has 299 extra IDs not in common set
-2024-11-17 19:27:33,668 - 10 - 210 - classTransfomer - Sample of extra IDs in df_dd: [Timestamp('2018-03-25 02:00:00'), Timestamp('2018-03-25 02:30:00'), Timestamp('2018-10-18 21:00:00'), Timestamp('2018-12-12 18:00:00'), Timestamp('2018-12-12 18:30:00')]
-2024-11-17 19:27:33,719 - 30 - 209 - classTransfomer - df_ci has 313 extra IDs not in common set
-2024-11-17 19:27:33,719 - 10 - 210 - classTransfomer - Sample of extra IDs in df_ci: [Timestamp('2018-03-25 02:00:00'), Timestamp('2018-03-25 02:30:00'), Timestamp('2018-03-25 23:00:00'), Timestamp('2018-03-25 23:30:00'), Timestamp('2018-10-18 21:00:00')]
-2024-11-17 19:27:33,733 - 30 - 209 - classTransfomer - df_si has 69 extra IDs not in common set
-2024-11-17 19:27:33,734 - 10 - 210 - classTransfomer - Sample of extra IDs in df_si: [Timestamp('2018-03-25 02:00:00'), Timestamp('2018-03-25 02:30:00'), Timestamp('2018-10-18 21:00:00'), Timestamp('2018-12-12 18:00:00'), Timestamp('2018-12-12 18:30:00')]
-2024-11-17 19:27:33,788 - 30 - 209 - classTransfomer - df_gcf has 299 extra IDs not in common set
-2024-11-17 19:27:33,789 - 10 - 210 - classTransfomer - Sample of extra IDs in df_gcf: [Timestamp('2018-03-25 23:00:00'), Timestamp('2018-03-25 23:30:00'), Timestamp('2018-10-18 21:00:00'), Timestamp('2018-12-12 18:00:00'), Timestamp('2018-12-12 18:30:00')]
-2024-11-17 19:27:33,842 - 30 - 209 - classTransfomer - df_ss has 299 extra IDs not in common set
-2024-11-17 19:27:33,842 - 10 - 210 - classTransfomer - Sample of extra IDs in df_ss: [Timestamp('2018-03-25 23:00:00'), Timestamp('2018-03-25 23:30:00'), Timestamp('2018-10-18 21:00:00'), Timestamp('2018-12-12 18:00:00'), Timestamp('2018-12-12 18:30:00')]
-2024-11-17 19:27:34,617 - 20 - 231 - classTransfomer - Aligned DataFrame df_bc: Original shape (130011, 7) -> New shape (129767, 7)
-2024-11-17 19:27:35,445 - 20 - 231 - classTransfomer - Aligned DataFrame df_bv: Original shape (130011, 9) -> New shape (129767, 9)
-2024-11-17 19:27:36,136 - 20 - 231 - classTransfomer - Aligned DataFrame df_dd: Original shape (130066, 20) -> New shape (129767, 20)
-2024-11-17 19:27:36,834 - 20 - 231 - classTransfomer - Aligned DataFrame df_ci: Original shape (130080, 32) -> New shape (129767, 32)
-2024-11-17 19:27:37,584 - 20 - 231 - classTransfomer - Aligned DataFrame df_si: Original shape (129836, 3) -> New shape (129767, 3)
-2024-11-17 19:27:38,485 - 20 - 231 - classTransfomer - Aligned DataFrame df_gcf: Original shape (130066, 39) -> New shape (129767, 39)
-2024-11-17 19:27:39,283 - 20 - 231 - classTransfomer - Aligned DataFrame df_ss: Original shape (130066, 28) -> New shape (129767, 28)
-2024-11-17 19:27:39,283 - 20 - 246 - classTransfomer - All DataFrames successfully aligned to 129767 rows
-2024-11-17 19:27:39,728 - 20 - 346 - classTransfomer - Starting data preparation for regression
-2024-11-17 19:27:39,728 - 20 - 351 - classTransfomer - Processing dataframe: df_bc
-2024-11-17 19:27:41,281 - 20 - 394 - classTransfomer - Cleaned df_bc shape: (129767, 7)
-2024-11-17 19:27:41,281 - 20 - 351 - classTransfomer - Processing dataframe: df_bv
-2024-11-17 19:27:43,287 - 20 - 394 - classTransfomer - Cleaned df_bv shape: (129767, 9)
-2024-11-17 19:27:43,288 - 20 - 351 - classTransfomer - Processing dataframe: df_dd
-2024-11-17 19:27:47,378 - 20 - 394 - classTransfomer - Cleaned df_dd shape: (129767, 20)
-2024-11-17 19:27:47,379 - 20 - 351 - classTransfomer - Processing dataframe: df_ci
-2024-11-17 19:27:54,549 - 20 - 394 - classTransfomer - Cleaned df_ci shape: (129767, 32)
-2024-11-17 19:27:54,550 - 20 - 351 - classTransfomer - Processing dataframe: df_si
-2024-11-17 19:27:55,044 - 20 - 394 - classTransfomer - Cleaned df_si shape: (129767, 3)
-2024-11-17 19:27:55,044 - 20 - 351 - classTransfomer - Processing dataframe: df_gcf
-2024-11-17 19:28:02,571 - 20 - 394 - classTransfomer - Cleaned df_gcf shape: (129767, 39)
-2024-11-17 19:28:02,572 - 20 - 351 - classTransfomer - Processing dataframe: df_ss
-2024-11-17 19:28:07,933 - 20 - 394 - classTransfomer - Cleaned df_ss shape: (129767, 28)
-2024-11-17 19:28:07,933 - 20 - 398 - classTransfomer - Data preparation completed
-2024-11-17 19:28:08,070 - 20 - 122 - DataPreparation - Shape of final ESO (129767, 86)
-2024-11-17 19:28:08,071 - 20 - 124 - DataPreparation - Shape of final SMARD (129767, 66)
-2024-11-17 19:28:23,777 - 20 - 145 - DataPreparation - Saved merged ESO data to /workspace/data/processed/DataPrep/merged_eso_data.csv
-2024-11-17 19:28:23,777 - 20 - 146 - DataPreparation - Saved merged SMARD data to /workspace/data/processed/DataPrep/merged_smard_data.csv
+2024-11-19 18:57:26,970 - 20 - 55 - DataPreparation - Initialize classes successful
+2024-11-19 18:57:26,971 - 20 - 21 - classMetaData - Get meta data
+2024-11-19 18:57:27,866 - 20 - 59 - classImporter - Successfully combined 8 DataFrames
+2024-11-19 18:57:29,265 - 20 - 54 - classTransfomer - Creation of ID column for ESO df with 30min LOGs successful
+2024-11-19 18:57:29,306 - 20 - 113 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
+2024-11-19 18:57:29,348 - 20 - 71 - DataPreparation - Return df (130025, 7) eso_daily-balancing-services-use-of-system-cost-data
+2024-11-19 18:57:30,099 - 20 - 59 - classImporter - Successfully combined 8 DataFrames
+2024-11-19 18:57:31,541 - 20 - 54 - classTransfomer - Creation of ID column for ESO df with 30min LOGs successful
+2024-11-19 18:57:31,583 - 20 - 113 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
+2024-11-19 18:57:31,630 - 20 - 71 - DataPreparation - Return df (130025, 9) eso_daily-balancing-services-use-of-system-volume-data
+2024-11-19 18:57:33,344 - 20 - 59 - classImporter - Successfully combined 16 DataFrames
+2024-11-19 18:57:36,129 - 20 - 54 - classTransfomer - Creation of ID column for ESO df with 30min LOGs successful
+2024-11-19 18:57:36,232 - 20 - 113 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
+2024-11-19 18:57:36,302 - 20 - 71 - DataPreparation - Return df (130080, 20) eso_historic-demand-data
+2024-11-19 18:57:38,943 - 20 - 59 - classImporter - Successfully combined 1 DataFrames
+2024-11-19 18:57:50,321 - 20 - 70 - classTransfomer - Creation of ID column for ESO df with 30min LOGs successful
+2024-11-19 18:57:50,444 - 20 - 113 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
+2024-11-19 18:57:50,574 - 20 - 71 - DataPreparation - Return df (130080, 32) eso_historic-generation-mix-and-carbon-intensity
+2024-11-19 18:57:51,171 - 20 - 59 - classImporter - Successfully combined 8 DataFrames
+2024-11-19 18:57:53,017 - 20 - 54 - classTransfomer - Creation of ID column for ESO df with 30min LOGs successful
+2024-11-19 18:57:53,075 - 20 - 113 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
+2024-11-19 18:57:53,087 - 20 - 71 - DataPreparation - Return df (129848, 3) eso_system-inertia
+2024-11-19 18:58:01,839 - 20 - 103 - classImporter - Successfully combined 3 DataFrames
+2024-11-19 18:58:13,905 - 20 - 90 - classTransfomer - Creation of ID column for SMARD df with 30min LOGs successful
+2024-11-19 18:58:14,126 - 20 - 113 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
+2024-11-19 18:58:14,289 - 20 - 86 - DataPreparation - Return df (130080, 39) smard_market-data_generation+consumption+physical-power-flow_GER
+2024-11-19 18:58:22,960 - 20 - 103 - classImporter - Successfully combined 7 DataFrames
+2024-11-19 18:58:36,294 - 20 - 90 - classTransfomer - Creation of ID column for SMARD df with 30min LOGs successful
+2024-11-19 18:58:36,491 - 20 - 113 - classTransfomer - Setting time span from 2017-04-01 00:00 to 2024-08-31 23:30
+2024-11-19 18:58:36,611 - 20 - 86 - DataPreparation - Return df (130080, 28) smard_market-data_system-stability_GER
+2024-11-19 18:58:36,612 - 20 - 109 - DataPreparation - Mismatches analyzed
+2024-11-19 18:58:36,621 - 30 - 188 - classTransfomer - Found 14 duplicate IDs in df_bc
+2024-11-19 18:58:36,641 - 30 - 188 - classTransfomer - Found 14 duplicate IDs in df_bv
+2024-11-19 18:58:36,658 - 30 - 188 - classTransfomer - Found 14 duplicate IDs in df_dd
+2024-11-19 18:58:36,714 - 30 - 188 - classTransfomer - Found 12 duplicate IDs in df_si
+2024-11-19 18:58:36,729 - 30 - 188 - classTransfomer - Found 14 duplicate IDs in df_gcf
+2024-11-19 18:58:36,851 - 30 - 188 - classTransfomer - Found 14 duplicate IDs in df_ss
+2024-11-19 18:58:37,227 - 20 - 196 - classTransfomer - df_bc has 130011 unique IDs
+2024-11-19 18:58:38,069 - 20 - 196 - classTransfomer - df_bv has 130011 unique IDs
+2024-11-19 18:58:38,634 - 20 - 196 - classTransfomer - df_dd has 130066 unique IDs
+2024-11-19 18:58:39,275 - 20 - 196 - classTransfomer - df_ci has 130080 unique IDs
+2024-11-19 18:58:39,740 - 20 - 196 - classTransfomer - df_si has 129836 unique IDs
+2024-11-19 18:58:40,337 - 20 - 196 - classTransfomer - df_gcf has 130066 unique IDs
+2024-11-19 18:58:40,919 - 20 - 196 - classTransfomer - df_ss has 130066 unique IDs
+2024-11-19 18:58:41,200 - 20 - 200 - classTransfomer - Found 129767 common IDs across all DataFrames
+2024-11-19 18:58:41,284 - 30 - 210 - classTransfomer - df_bc has 244 extra IDs not in common set
+2024-11-19 18:58:41,286 - 10 - 211 - classTransfomer - Sample of extra IDs in df_bc: [Timestamp('2018-03-25 02:00:00'), Timestamp('2018-03-25 02:30:00'), Timestamp('2019-03-31 02:00:00'), Timestamp('2019-03-31 02:30:00'), Timestamp('2020-03-29 02:00:00')]
+2024-11-19 18:58:41,373 - 30 - 210 - classTransfomer - df_bv has 244 extra IDs not in common set
+2024-11-19 18:58:41,374 - 10 - 211 - classTransfomer - Sample of extra IDs in df_bv: [Timestamp('2018-03-25 02:00:00'), Timestamp('2018-03-25 02:30:00'), Timestamp('2019-03-31 02:00:00'), Timestamp('2019-03-31 02:30:00'), Timestamp('2020-03-29 02:00:00')]
+2024-11-19 18:58:41,454 - 30 - 210 - classTransfomer - df_dd has 299 extra IDs not in common set
+2024-11-19 18:58:41,455 - 10 - 211 - classTransfomer - Sample of extra IDs in df_dd: [Timestamp('2018-03-25 02:00:00'), Timestamp('2018-03-25 02:30:00'), Timestamp('2018-10-18 21:00:00'), Timestamp('2018-12-12 18:00:00'), Timestamp('2018-12-12 18:30:00')]
+2024-11-19 18:58:41,531 - 30 - 210 - classTransfomer - df_ci has 313 extra IDs not in common set
+2024-11-19 18:58:41,532 - 10 - 211 - classTransfomer - Sample of extra IDs in df_ci: [Timestamp('2018-03-25 02:00:00'), Timestamp('2018-03-25 02:30:00'), Timestamp('2018-03-25 23:00:00'), Timestamp('2018-03-25 23:30:00'), Timestamp('2018-10-18 21:00:00')]
+2024-11-19 18:58:41,551 - 30 - 210 - classTransfomer - df_si has 69 extra IDs not in common set
+2024-11-19 18:58:41,552 - 10 - 211 - classTransfomer - Sample of extra IDs in df_si: [Timestamp('2018-03-25 02:00:00'), Timestamp('2018-03-25 02:30:00'), Timestamp('2018-10-18 21:00:00'), Timestamp('2018-12-12 18:00:00'), Timestamp('2018-12-12 18:30:00')]
+2024-11-19 18:58:41,637 - 30 - 210 - classTransfomer - df_gcf has 299 extra IDs not in common set
+2024-11-19 18:58:41,638 - 10 - 211 - classTransfomer - Sample of extra IDs in df_gcf: [Timestamp('2018-03-25 23:00:00'), Timestamp('2018-03-25 23:30:00'), Timestamp('2018-10-18 21:00:00'), Timestamp('2018-12-12 18:00:00'), Timestamp('2018-12-12 18:30:00')]
+2024-11-19 18:58:41,730 - 30 - 210 - classTransfomer - df_ss has 299 extra IDs not in common set
+2024-11-19 18:58:41,731 - 10 - 211 - classTransfomer - Sample of extra IDs in df_ss: [Timestamp('2018-03-25 23:00:00'), Timestamp('2018-03-25 23:30:00'), Timestamp('2018-10-18 21:00:00'), Timestamp('2018-12-12 18:00:00'), Timestamp('2018-12-12 18:30:00')]
+2024-11-19 18:58:43,448 - 20 - 232 - classTransfomer - Aligned DataFrame df_bc: Original shape (130011, 7) -> New shape (129767, 7)
+2024-11-19 18:58:44,767 - 20 - 232 - classTransfomer - Aligned DataFrame df_bv: Original shape (130011, 9) -> New shape (129767, 9)
+2024-11-19 18:58:45,879 - 20 - 232 - classTransfomer - Aligned DataFrame df_dd: Original shape (130066, 20) -> New shape (129767, 20)
+2024-11-19 18:58:47,055 - 20 - 232 - classTransfomer - Aligned DataFrame df_ci: Original shape (130080, 32) -> New shape (129767, 32)
+2024-11-19 18:58:48,112 - 20 - 232 - classTransfomer - Aligned DataFrame df_si: Original shape (129836, 3) -> New shape (129767, 3)
+2024-11-19 18:58:49,527 - 20 - 232 - classTransfomer - Aligned DataFrame df_gcf: Original shape (130066, 39) -> New shape (129767, 39)
+2024-11-19 18:58:50,819 - 20 - 232 - classTransfomer - Aligned DataFrame df_ss: Original shape (130066, 28) -> New shape (129767, 28)
+2024-11-19 18:58:50,820 - 20 - 247 - classTransfomer - All DataFrames successfully aligned to 129767 rows
+2024-11-19 18:58:51,411 - 20 - 347 - classTransfomer - Starting data preparation for regression
+2024-11-19 18:58:51,412 - 20 - 352 - classTransfomer - Processing dataframe: df_bc
+2024-11-19 18:58:54,520 - 20 - 395 - classTransfomer - Cleaned df_bc shape: (129767, 7)
+2024-11-19 18:58:54,521 - 20 - 352 - classTransfomer - Processing dataframe: df_bv
+2024-11-19 18:58:57,572 - 20 - 395 - classTransfomer - Cleaned df_bv shape: (129767, 9)
+2024-11-19 18:58:57,573 - 20 - 352 - classTransfomer - Processing dataframe: df_dd
+2024-11-19 18:59:03,963 - 20 - 395 - classTransfomer - Cleaned df_dd shape: (129767, 20)
+2024-11-19 18:59:03,964 - 20 - 352 - classTransfomer - Processing dataframe: df_ci
+2024-11-19 18:59:14,850 - 20 - 395 - classTransfomer - Cleaned df_ci shape: (129767, 32)
+2024-11-19 18:59:14,851 - 20 - 352 - classTransfomer - Processing dataframe: df_si
+2024-11-19 18:59:15,526 - 20 - 395 - classTransfomer - Cleaned df_si shape: (129767, 3)
+2024-11-19 18:59:15,527 - 20 - 352 - classTransfomer - Processing dataframe: df_gcf
+2024-11-19 18:59:27,443 - 20 - 395 - classTransfomer - Cleaned df_gcf shape: (129767, 39)
+2024-11-19 18:59:27,444 - 20 - 352 - classTransfomer - Processing dataframe: df_ss
+2024-11-19 18:59:34,994 - 20 - 395 - classTransfomer - Cleaned df_ss shape: (129767, 28)
+2024-11-19 18:59:34,994 - 20 - 399 - classTransfomer - Data preparation completed
+2024-11-19 18:59:35,211 - 20 - 120 - DataPreparation - Shape of final ESO (129767, 86)
+2024-11-19 18:59:35,212 - 20 - 121 - DataPreparation - Shape of final SMARD (129767, 66)
+2024-11-19 19:00:03,590 - 20 - 143 - DataPreparation - Saved merged ESO data to /workspace/data/processed/DataPrep/merged_eso_data.csv
+2024-11-19 19:00:03,590 - 20 - 144 - DataPreparation - Saved merged SMARD data to /workspace/data/processed/DataPrep/merged_smard_data.csv

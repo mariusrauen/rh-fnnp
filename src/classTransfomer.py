@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import warnings
 from typing import Dict
+from sklearn. preprocessing import MinMaxScaler
 
 from classTidy import Tidy
 timeformat = '%Y-%m-%d %H:%M'
@@ -398,17 +399,83 @@ class Transformer:
         logging.info('Data preparation completed')
         return processed_dict
 
+    @staticmethod
+    def normalize(df_dict: Dict[str, pd.DataFrame], feature_range=(0, 1)) -> Dict[str, pd.DataFrame]:
+        '''
+        Normalizes columns within each dataframe independently using Min-Max scaling.
+        
+        Parameters:
+        df_dict: Dictionary of DataFrames to normalize
+        feature_range: Tuple of (min, max) for normalization range
+        
+        Returns:
+        Dict[str, pd.DataFrame]: Dictionary of normalized DataFrames
+        '''
+        normalized_dict = {}
+        
+        # Store scalers for each dataframe and column
+        scalers = {}
+        
+        # First pass: Initialize scalers and fit them
+        for key, df in df_dict.items():
+            scalers[key] = {}
+            numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
+            
+            for col in numeric_cols:
+                scaler = MinMaxScaler(feature_range=feature_range)
+                scaler.fit(df[[col]])
+                scalers[key][col] = scaler
+        
+        # Second pass: Transform the data
+        for key, df in df_dict.items():
+            df_normalized = df.copy()
+            numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
+            
+            for col in numeric_cols:
+                df_normalized[col] = scalers[key][col].transform(df[[col]])
+                logging.info(f'{key} - {col}: min={df_normalized[col].min():.4f}, max={df_normalized[col].max():.4f}')
+            
+            normalized_dict[key] = df_normalized
+        
+        return normalized_dict
+    """
+    @staticmethod
+    def normalize(df_dict: Dict[str, pd.DataFrame])-> pd.DataFrame:
+        '''
+        Normalizes dataframes
+        Parameters:
+        df_dict (Dict[str, pd.DataFrame]): Dictionary of DataFrames
+        Return:
+        result_df: Standardize data
+        '''
+        normalized_dict = {}
+        for key, df in df_dict.items():
+            df_normalized = df.copy()
+            numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
+
+            if len(numeric_cols) > 0:
+                scaler = MinMaxScaler()
+                df_normalized[numeric_cols] = scaler.fit_transform(df[numeric_cols])
+
+                logging.info(f'Normalized ranges for {key}:')
+                for col in numeric_cols:
+                    min_val = df_normalized[col].min()
+                    max_val = df_normalized[col].max()
+                    logging.info(f'{col}: min={min_val:.4f}, max={max_val:.4f}')
+
+                normalized_dict[key] = df_normalized
+
+        return normalized_dict
+    """
 
     @staticmethod
     def merge_dataframes(df_dict: Dict[str, pd.DataFrame], keys_to_merge: list) -> pd.DataFrame:
         """
         Merges selected DataFrames horizontally into a single DataFrame.
         The 'ID' column is kept only from the first DataFrame.
-        
         Parameters:
         df_dict (Dict[str, pd.DataFrame]): Dictionary of aligned DataFrames
         keys_to_merge (list): List of keys from df_dict to merge
-        
         Returns:
         pd.DataFrame: A single merged DataFrame
         """
@@ -425,7 +492,7 @@ class Transformer:
             df = df_dict[key]
             cols_to_add = [col for col in df.columns if col != 'ID']
             result_df = pd.concat([result_df, df[cols_to_add]], axis=1)
-        
-        #logging.info(f'Merged {len(keys_to_merge)} DataFrames. Final shape: {result_df.shape}')
-        
+                
         return result_df
+
+    
