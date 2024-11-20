@@ -30,9 +30,8 @@ Sources of the raw data (2024/09/28):
 | Sekundaerregelreserve                                     | Link -> Oberkategorie: Systemstabilitaet                                                 \ |
 
 
-https://www.smard.de/home
+![Hadley-Wickham-method](./data/figures/Hadley-Wickham-method.png)
 
-![Dashboard Screenshot](./data/figures/Hadley-Wickham-method.png)
 
 # **INSTRUCTION**
 > **Get project from https://github.com/mariusrauen/rh-fnnp and connect Docker environment.** 
@@ -119,6 +118,7 @@ Project:
 | 2024/11/15 | 46        | 08:00      | 14:00      | 02:00      | 04:00     | 57:00     | Restructe code                    |
 | **End of Data Preperation**                                                                                               |
 | 2024/11/16 | 46        | 09:00      | 18:00      | 02:00      | 07:00     | 64:00     | Setup notebooks, validate code    |
+| 2024/11/19 | 46        | 19:00      | 21:00      | 00:00      | 02:00     | 66:00     | Visalize                          |
 | 2024/11/21 | 47        | 00:00      | 00:00      | 00:00      | 00:00     | 64:00     |
 | 2024/11/23 | 47        | 00:00      | 00:00      | 00:00      | 00:00     | 64:00     |
 | 2024/11/30 | 48        | 00:00      | 00:00      | 00:00      | 00:00     | 64:00     |

@@ -1,4 +1,6 @@
-2024-11-19 20:24:54,420 - 20 - 52 - 551641977 - Available csv file: merged_eso_data.csv
-2024-11-19 20:24:54,421 - 20 - 52 - 551641977 - Available csv file: merged_smard_data.csv
-2024-11-19 20:24:57,328 - 20 - 45 - 551641977 - Report saved to: ../../data/processed/DataPrep/../Visualizer/eso_inspection.txt
-2024-11-19 20:24:57,397 - 20 - 45 - 551641977 - Report saved to: ../../data/processed/DataPrep/../Visualizer/smard_inspection.txt
+2024-11-20 12:26:31,595 - 20 - 4 - 1735855858 - Available csv file: merged_eso_data.csv
+2024-11-20 12:26:31,596 - 20 - 4 - 1735855858 - Available csv file: merged_smard_data.csv
+2024-11-20 12:26:34,182 - 20 - 45 - 2597582017 - Report saved to: ../../data/processed/DataPrep/../Visualizer/eso_inspection.txt
+2024-11-20 12:26:34,253 - 20 - 45 - 2597582017 - Report saved to: ../../data/processed/DataPrep/../Visualizer/ger_inspection.txt
+2024-11-20 12:26:43,270 - 20 - 45 - 2597582017 - Report saved to: ../../data/processed/DataPrep/../Visualizer/eso_sc_inspection.txt
+2024-11-20 12:26:43,342 - 20 - 45 - 2597582017 - Report saved to: ../../data/processed/DataPrep/../Visualizer/ger_sc_inspection.txt
