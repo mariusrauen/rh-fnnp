@@ -137,8 +137,8 @@ class DataProcessor:
         processed_dir.mkdir(parents=True, exist_ok=True)
         
         # Save DataFrames to CSV
-        df_eso.to_csv(processed_dir / 'merged_eso_data.csv', index=False)
-        df_smard.to_csv(processed_dir / 'merged_smard_data.csv', index=False)
+        df_eso.to_csv(processed_dir / 'df_eso.csv', index=False)
+        df_smard.to_csv(processed_dir / 'df_ger.csv', index=False)
         
         self.logger.info(f'Saved merged ESO data to {processed_dir}/merged_eso_data.csv')
         self.logger.info(f'Saved merged SMARD data to {processed_dir}/merged_smard_data.csv')
