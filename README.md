@@ -1,6 +1,8 @@
 # **INTRODUCTION** 
 Original Author: marius.rauen@rfh-campus.de
 
+#### Render with Ctrl + Shift + V
+
 This README contains information regarding the project structure and the processed data (Introduction), and the software exectuion (Instruction).
 For this Data Science task, the Hadley-Wickham method is used to investigate the data provided by the 'Electricity System Operator' (ESO) and by 'Strom- und Gasmarktdaten' (SMARD) of the German 'Bundesnetzagentur. The method steps of Hadley-Wickham are shown in the image below.
 
@@ -122,6 +124,8 @@ Project:
 | 2024/11/20 | 47        | 09:00      | 14:00      | 00:00      | 05:00     | 71:00     | Normalize and heatmap             |
 | 2024/11/21 | 47        | 15:30      | 18:00      | 00:00      | 02:30     | 73:30     | Start modeling                    |
 | 2024/11/22 | 47        | 09:00      | 14:00      | 03:00      | 04:30     | 78:00     | LSTM initial model structure      |
+| 2024/11/23 | 47        | 09:00      | 12:00      | 00:00      | 03:00     | 81:00     | LSTM model                        |
+| 2024/11/24 | 47        | 13:00      | 16:00      | 00:00      | 03:00     | 84:00     | LSTM model                        |
 | 2024/11/30 | 48        | 00:00      | 00:00      | 00:00      | 00:00     | 64:00     |
 | 2024/12/07 | 49        | 00:00      | 00:00      | 00:00      | 00:00     | 64:00     |
 | 2024/12/14 | 50        | 00:00      | 00:00      | 00:00      | 00:00     | 64:00     |

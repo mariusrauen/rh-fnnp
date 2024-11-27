@@ -1,0 +1,12 @@
+2024-11-27 14:44:08,237 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/test/X_train.txt
+2024-11-27 14:44:08,256 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/test/y_train.txt
+2024-11-27 14:44:08,270 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/test/X_eval.txt
+2024-11-27 14:44:08,281 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/test/y_eval.txt
+2024-11-27 14:44:08,377 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/eso/X_train_eso.txt
+2024-11-27 14:44:08,388 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/eso/y_train_eso.txt
+2024-11-27 14:44:08,448 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/eso/X_eval_eso.txt
+2024-11-27 14:44:08,459 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/eso/y_eval_eso.txt
+2024-11-27 14:44:08,516 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/ger/X_train_ger.txt
+2024-11-27 14:44:08,528 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/ger/y_train_ger.txt
+2024-11-27 14:44:08,581 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/ger/X_eval_ger.txt
+2024-11-27 14:44:08,593 - 20 - 44 - 873722770 - Report saved to: ../../data/processed/Modeler/ger/y_eval_ger.txt
