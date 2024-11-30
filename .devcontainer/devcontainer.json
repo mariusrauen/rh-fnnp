@@ -1,0 +1,25 @@
+{
+    "name": "Python Dev Container",
+    "dockerFile": "Dockerfile",
+    "context": "..",
+    "workspaceFolder": "/workspace",
+    "settings": {
+        "python.pythonPath": "/usr/local/bin/python",
+        "python.autoComplete.extraPaths": ["/workspace/src"],
+        "files.exclude": {
+            "**/.git": false,
+            "**/.devcontainer": false,
+            "**/.gitignore": false
+        }
+    },
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.python",
+        "ms-toolsai.jupyter"
+    ],
+    "remoteUser": "root",
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/workspace,type=bind"
+    ]
+}
