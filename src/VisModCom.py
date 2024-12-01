@@ -158,15 +158,15 @@ def normalize(X_train, X_eval, y_train, y_eval):
 X_train_eso, X_eval_eso, y_train_eso, y_eval_eso, yeso_scaler = normalize(X_train_eso, X_eval_eso, y_train_eso, y_eval_eso)
 X_train_ger, X_eval_ger, y_train_ger, y_eval_ger, yger_scaler = normalize(X_train_ger, X_eval_ger, y_train_ger, y_eval_ger)
 
-
+# Check scaler
 eso_row = y_train_eso[y_train_eso['ID'] == target_timestamp].iloc[0]
-ger_row = y_train_ger[y_train_eso['ID'] == target_timestamp].iloc[0]
+ger_row = y_train_ger[y_train_ger['ID'] == target_timestamp].iloc[0]
 normalized_esovalue = eso_row['FOSSIL']
 normalized_gervalue = ger_row['FOSSIL']
 original_esovalue = yeso_scaler.inverse_transform([[normalized_esovalue]])[0][0]
 original_gervalue = yger_scaler.inverse_transform([[normalized_gervalue]])[0][0]
 logger.info(f"ESO FOSSIL AT INDEX {eso_row.name} ({target_timestamp}): {normalized_esovalue}, NORMALIZE ESO BACK: {original_esovalue}")
-logger.info(f"GER FOSSIL AT INDEX {ger_row.name} ({target_timestamp}): {normalized_gervalue}, NORMALIZE ESO BACK: {original_gervalue}")
+logger.info(f"GER FOSSIL AT INDEX {ger_row.name} ({target_timestamp}): {normalized_gervalue}, NORMALIZE GER BACK: {original_gervalue}")
 
 # ============================================================================================================================
 ## INSPECT NORMALIZED DATA AND CORRELATIONS
@@ -200,8 +200,6 @@ ger_corr = find_high_correlations(X_train_ger, threshold, output_path=path_ger_n
 logger.info('IMPORT FOR MODELING')
 # https://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html
 # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html 
-# TODO - Consider: batch size, epoche, learning rate, learning rate dk 
-# TODO - Evaluation
 # TODO - Commenting
 # TODO - Docker
 
@@ -222,11 +220,14 @@ from tqdm import tqdm
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 # ============================================================================================================================
+# MAKE SMALL DATASET FOR DEBUGGING
 
 X_train_eso = X_train_eso.iloc[:400]; X_train_ger = X_train_ger.iloc[:400]
 y_train_eso = y_train_eso.iloc[:400]; y_train_ger = y_train_ger.iloc[:400]
 X_eval_eso = X_eval_eso.iloc[:400]; X_eval_ger = X_eval_ger.iloc[:400]
 y_eval_eso = y_eval_eso.iloc[:400]; y_eval_ger = y_eval_ger.iloc[:400]
+
+# ============================================================================================
 
 class ModelConfig:
     def __init__(self):
@@ -241,8 +242,8 @@ class ModelConfig:
         self.dropout = 0.3  
         self.patience = 16
         self.grad_clip = 1.0         
-        self.scheduler_factor = 0.6
-        self.scheduler_patience = 10
+        self.scheduler_factor = 0.6         # Learning rate decay factor
+        self.scheduler_patience = 10        # Learning rate decay patience
         self.output_size = 1
 
 # ============================================================================================
@@ -547,9 +548,13 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
         predicted_value_original = y_scaler.inverse_transform([[predicted_value_normalized]])[0][0]
         
         # Log historical values
-        logger.info("\nHistorical values (Original Scale):")
+        '''logger.info("\nHistorical values (Original Scale):")
         for idx, (ts, val) in enumerate(zip(timestamps[:-1], true_values_original[:-1])):
-            logger.info(f"Index: {history_start + idx}, Timestamp: {ts}, Value: {val:.2f}")
+            logger.info(f"Index: {history_start + idx}, Timestamp: {ts}, Value: {val:.2f}")'''
+        logger.info("\nHistorical values (Original Scale):")
+        historical_indices = y_train.index[history_start:target_idx + 1]
+        for idx, (ts, val) in enumerate(zip(timestamps[:-1], true_values_original[:-1])):
+            logger.info(f"Index: {historical_indices[idx]}, Timestamp: {ts}, Value: {val:.2f}")
         
         target_true_original = true_values_original[-1]
         
@@ -609,13 +614,11 @@ class DatasetType(Enum):
 def train(dataset_type, config):
     # -----------------------------------------------------------------
     timestamp = datetime.now(pytz.timezone('Europe/Berlin')).strftime('%Y%m%d_%H%M')
-    #model_dir = Path(__file__).resolve().parent.parent / 'data' / 'models' / f'{dataset_type.name.lower()}_model_{timestamp}'
     base_dir = Path(__file__).resolve().parent.parent / 'data' / 'models' / dataset_type.name.lower()
     model_dir = base_dir / f'model_{timestamp}'
     model_dir.mkdir(parents=True, exist_ok=True)
     
     # Setup logger with model directory path
-    #logger = setup_logger2(model_dir)
     logger = setup_logger(model_dir=model_dir)
     logger.info(f"Starting training for {dataset_type.name} dataset")
      # -----------------------------------------------------------------
@@ -647,7 +650,7 @@ def train(dataset_type, config):
         torch.save(model.state_dict(), model_dir / 'model.pth')
         logger.info(f"Model saved in: {model_dir}")
         
-        return model, metrics, predicted_value, true_value  # Changed last_true_value to true_value
+        return model, metrics, predicted_value, true_value  
     
     except Exception as e:
         logger.error(f"Error during training: {str(e)}")
@@ -658,5 +661,196 @@ dataset_type = DatasetType.GER
 model, metrics, predicted_value, last_true_value = train(dataset_type, config)
 
 # ============================================================================================
+# EVALUATE SAVED MODEL WITH NEW DATA
+logger.info('EVALUATE SAVED MODEL WITH NEW DATA')
+
+def evaluate_model(dataset_type: DatasetType, timestamp: str):
+    
+    model_dir = Path(__file__).resolve().parent.parent / 'data' / 'models' / dataset_type.name.lower() / f'model_{timestamp}'
+
+    # Setup logger
+    logger = setup_logger(model_dir=model_dir)
+    logger.info(f"Starting evaluation for {dataset_type.name} model from {timestamp}")
+
+    try:
+        # Select appropriate dataset and scaler based on type
+        if dataset_type == DatasetType.ESO:
+            X_eval, y_eval = X_eval_eso, y_eval_eso
+            y_scaler = yeso_scaler
+        elif dataset_type == DatasetType.GER:
+            X_eval, y_eval = X_eval_ger, y_eval_ger
+            y_scaler = yger_scaler
+        else:
+            raise ValueError(f"Invalid dataset type: {dataset_type}")
+
+        config = ModelConfig()  
+
+        # Load saved model
+        input_size = X_eval.select_dtypes(include=['float64']).shape[1]
+        model = LSTMPredictor(input_size, config)
+        model.load_state_dict(torch.load(model_dir / 'model.pth', weights_only=True))
+        model.eval()
+    
+        # Create dataset and dataloader
+        eval_dataset = TimeSeriesDataset(X_eval, y_eval, config)
+        eval_loader = DataLoader(eval_dataset, batch_size=config.batch_size, shuffle=False)
+    
+        # Initialize lists for predictions and true values
+        all_predictions = []
+        all_true_values = []
+        eval_loss = 0
+        criterion = nn.MSELoss()
+    
+        with torch.no_grad():           
+            for X_batch, y_batch in tqdm(eval_loader, desc='Evaluating'):
+                y_pred = model(X_batch)
+                loss = criterion(y_pred, y_batch.unsqueeze(1))
+                eval_loss += loss.item()
+                
+                # Store predictions and true values
+                all_predictions.extend(y_pred.numpy().flatten())
+                all_true_values.extend(y_batch.numpy().flatten())
+    
+        avg_eval_loss = eval_loss / len(eval_loader)
+        eval_metrics = calculate_metrics(all_true_values, all_predictions)
+    
+        # Log results
+        logger.info(f"\nAverage evaluation loss: {avg_eval_loss:.4f}")
+        logger.info("\nEvaluation Metrics:")
+
+        for metric, value in eval_metrics.items():
+            logger.info(f"{metric}: {value:.4f}")
+    
+        # Convert predictions back to original scale
+        predictions_original = y_scaler.inverse_transform(
+            np.array(all_predictions).reshape(-1, 1)
+        ).flatten()
+        true_values_original = y_scaler.inverse_transform(
+            np.array(all_true_values).reshape(-1, 1)
+        ).flatten()
+    
+        # Create visualization
+        plt.figure(figsize=(15, 7))
+        time_steps = range(len(predictions_original))
+        
+        plt.plot(time_steps, true_values_original, 'b-', label='True Values', alpha=0.7)
+        plt.plot(time_steps, predictions_original, 'r-', label='Predictions', alpha=0.7)
+        
+        plt.title('Model Predictions vs True Values (Original Scale)')
+        plt.xlabel('Time Steps')
+        plt.ylabel('FOSSIL Values')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+    
+        # Save plot
+        eval_plot_path = model_dir / 'evaluation_results.png'
+        plt.savefig(eval_plot_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    
+        # Save detailed results
+        results_path = model_dir / 'evaluation_results.csv'
+        results_df = pd.DataFrame({
+            'True_Values': true_values_original,
+            'Predictions': predictions_original,
+            'Absolute_Error': np.abs(predictions_original - true_values_original)
+        })
+        results_df.to_csv(results_path, index=False)
+        
+        logger.info(f"Evaluation results saved to: {model_dir}")
+        
+        return {
+            'metrics': eval_metrics,
+            'predictions': predictions_original,
+            'true_values': true_values_original,
+            'loss': avg_eval_loss
+        }
+    
+    except Exception as e:
+        logger.error(f"Error during evaluation: {str(e)}")
+        raise
+
+dataset_type = DatasetType.GER
+timestamp = None #"20241201_1110"  
+if timestamp == None:
+    pass
+else: 
+    logger.info('EVALUATE RESULTS')
+    results = evaluate_model(DatasetType.GER, "20241201_1110") 
+    
+# ============================================================================================
 
 
+"""# ============================================================================================
+# USER INTERACTION
+logger.info('START USER INTERACTION')
+
+def get_user_choice():
+    '''Choose action'''
+    while True:
+        print("\nWHAT WOULD YOU LIKE TO DO?")
+        print("1: Train a new model")
+        print("2: Evaluate an existing model")
+        print("3: Exit")
+        choice = input("Enter your choice (1-3): ")
+        
+        if choice in ['1', '2', '3']:
+            return int(choice)
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.")
+
+def get_dataset_choice():
+    '''Choose dataset'''
+    while True:
+        print("\nSELECT DATASET TYPE:")
+        print("1: ESO")
+        print("2: GER")
+        choice = input("Enter your choice (1-2): ")
+        
+        if choice == '1':
+            return DatasetType.ESO
+        elif choice == '2':
+            return DatasetType.GER
+        else:
+            print("Invalid choice. Please enter 1 or 2.")
+
+def get_timestamp():
+    '''Choose timestamp'''
+    while True:
+        timestamp = input("\nENTER MODEL TIMESTAMP (FORMAT: YYYYMMDD_HHMM): ")
+        if len(timestamp) == 13 and timestamp[8] == '_':
+            return timestamp
+        else:
+            print("Invalid timestamp format. Please use YYYYMMDD_HHMM (e.g., 20241201_1430)")
+
+# Main interaction loop
+while True:
+    choice = get_user_choice()
+    
+    if choice == 3:
+        logger.info('USER CHOOSE TO EXIT')
+        break
+        
+    dataset_type = get_dataset_choice()
+    
+    if choice == 1:
+        # Train new model
+        logger.info(f'Training new model for {dataset_type.name} dataset')
+        print(f"\nTraining new model for {dataset_type.name} dataset...")
+        config = ModelConfig()
+        model, metrics, predicted_value, last_true_value = train(dataset_type, config)
+        print("Training completed!")
+        
+    elif choice == 2:
+        # Evaluate existing model
+        timestamp = get_timestamp()
+        logger.info(f'Evaluating model for {dataset_type.name} dataset from {timestamp}')
+        print(f"\nEvaluating model for {dataset_type.name} dataset from {timestamp}...")
+        results = evaluate_model(dataset_type, timestamp)
+        print("Evaluation completed!")
+        print("\nEvaluation Metrics:")
+        for metric, value in results['metrics'].items():
+            print(f"{metric}: {value:.4f}")
+
+# ============================================================================================"""
+# END PROJECT
+logger.info('END PROJECT')
