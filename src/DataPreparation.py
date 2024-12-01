@@ -21,10 +21,10 @@ import logging
 import pandas as pd
 
 
-from classMetaData import DatasetRegistry
-from classImporter import Importer
-from classTidy import Tidy
-from classTransfomer import Transformer
+from modules.classMetaData import DatasetRegistry
+from modules.classImporter import Importer
+from modules.classTidy import Tidy
+from modules.classTransfomer import Transformer
 
 
 @dataclass

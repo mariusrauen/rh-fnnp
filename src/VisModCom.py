@@ -7,9 +7,9 @@ from sklearn. preprocessing import MinMaxScaler
 from pathlib import Path
 from pprint import pprint
 
-from classVisualizer import Visualizer
-from classVisualizer import find_high_correlations, inspect_data
-from classMetaData import setup_logger
+from modules.classVisualizer import Visualizer
+from modules.classVisualizer import find_high_correlations, inspect_data
+from modules.classMetaData import setup_logger
 
 logger = setup_logger()
 
