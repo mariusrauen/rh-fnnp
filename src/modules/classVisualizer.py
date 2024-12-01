@@ -24,7 +24,7 @@ class Visualizer:
         print(f"Created directory structure at: {self.plot_dir}")"""
 
         # Define the full path
-        self.plot_dir = Path(__file__).resolve().parent.parent / 'data' / 'processed' / 'plots'
+        self.plot_dir = Path(__file__).resolve().parent.parent / '..' /'data' / 'processed' / 'plots'
         self.plot_dir.mkdir(parents=True, exist_ok=True)
         
 

@@ -159,10 +159,14 @@ X_train_eso, X_eval_eso, y_train_eso, y_eval_eso, yeso_scaler = normalize(X_trai
 X_train_ger, X_eval_ger, y_train_ger, y_eval_ger, yger_scaler = normalize(X_train_ger, X_eval_ger, y_train_ger, y_eval_ger)
 
 
-row = y_train_eso[y_train_eso['ID'] == target_timestamp].iloc[0]
-normalized_value = row['FOSSIL']
-original_value = yeso_scaler.inverse_transform([[normalized_value]])[0][0]
-logger.info(f"FOSSIL AT INDEX {row.name} ({target_timestamp}): {row['FOSSIL']}, NORMALIZE BACK: {original_value}")
+eso_row = y_train_eso[y_train_eso['ID'] == target_timestamp].iloc[0]
+ger_row = y_train_ger[y_train_eso['ID'] == target_timestamp].iloc[0]
+normalized_esovalue = eso_row['FOSSIL']
+normalized_gervalue = ger_row['FOSSIL']
+original_esovalue = yeso_scaler.inverse_transform([[normalized_esovalue]])[0][0]
+original_gervalue = yger_scaler.inverse_transform([[normalized_gervalue]])[0][0]
+logger.info(f"ESO FOSSIL AT INDEX {eso_row.name} ({target_timestamp}): {normalized_esovalue}, NORMALIZE ESO BACK: {original_esovalue}")
+logger.info(f"GER FOSSIL AT INDEX {ger_row.name} ({target_timestamp}): {normalized_gervalue}, NORMALIZE ESO BACK: {original_gervalue}")
 
 # ============================================================================================================================
 ## INSPECT NORMALIZED DATA AND CORRELATIONS
