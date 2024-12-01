@@ -1,3 +1,5 @@
+# **RENDER: ctrl+shift+V**
+
 # **INTRODUCTION** 
 Original Author: marius.rauen@rfh-campus.de
 
@@ -38,7 +40,7 @@ Sources of the raw data (2024/09/28):
 # **INSTRUCTION**
 > **Get project from https://github.com/mariusrauen/rh-fnnp and connect Docker environment.** 
 
-> **Run DataPreperation.py to generate the data for the steps Visualise, Model and Communicate.**
+> **Run DataPrep.py to generate the data for the steps Visualise, Model and Communicate.**
 
 > **After that, execute the jupyter notebooks for Visualise, Communicate and Model in the order as listed in this README.**
 
@@ -69,9 +71,7 @@ Contains the **Transformer** class and its methods to transform the read in raw 
     - prepare_for_regression
     - merge_dataframes
 
-
-
-# DataPerparation.py
+# DataPerp.py
 Contains a **DataProcessor** class combining the code of Import, Tidy and Transformer to provide prepare data for the tasks in the subsequent steps of the Hadley-Wickham method.
 #### Methods:
     - __post_init__
@@ -84,19 +84,19 @@ Contains a **DataProcessor** class combining the code of Import, Tidy and Transf
 
 
 # **NOTE**
-> **Up this point, the project steps Import, Tidy and Transform are processed with python scripts (.py). Further model steps Visualization, Modelling and Communication are handled with Jupyter Notebooks (.ipnyb). Information and results are saved to the directory that is named 'processed'.**
+> **Up this point, the project steps Import, Tidy and Transform are processed with python scripts (.py). Further model steps Visualization, Modelling and Communication are handled in VisModCom.py. Information related to the used and processed datasets are saved to the directory that is named 'processed'. Information and results regarding the models are saved to the directory that is named 'models'.**
  
 
 
-# classVisualizer.ipnyb
+# VisModCom.py
+## Visualization
 In this project step, the prepared data are inspected.
 
-
-# classModeler.ipnyb
+## Modeler
 Build a ML regression and a LSTM.
 
+## Communicator
 
-# classCommunicator.ipnyb
 The Communicator is a framework to present insights in an effective and clear way. It reports and visualizes the output of a data science project.
 
 # **TIME**
@@ -129,7 +129,8 @@ Project:
 | 2024/11/27 | 48        | 09:00      | 16:00      | 01:00      | 06:00     | 090:00     | LSTM model                        |
 | 2024/11/28 | 48        | 08:00      | 21:00      | 02:00      | 11:00     | 101:00     | LSTM model                        |
 | 2024/11/29 | 48        | 08:00      | 10:00      | 00:00      | 02:00     | 103:00     | LSTM model                        |
-| 2024/11/30 | 48        | 09:00      | 19:30      | 01:30      | 09:00     | 112:00     | Toss .ipynb, restructure, check   |
+| 2024/11/30 | 48        | 09:00      | 19:30      | 01:30      | 09:00     | 112:00     | Toss .ipynb, troubleshooting      |
+| 2024/12/01 | 48        | 10:00      | 00:00      | 00:00      | 00:00     | 112:00     | Evaluate, restructure             |
 | 2024/12/02 | 49        | 00:00      | 00:00      | 00:00      | 00:00     | XXX:00     | 
 | 2024/12/XX | XX        | 00:00      | 00:00      | 00:00      | 00:00     | XXX:00     | 
 | 2024/12/XX | XX        | 00:00      | 00:00      | 00:00      | 00:00     | XXX:00     | 

@@ -6,7 +6,7 @@ import warnings
 from typing import Dict
 from sklearn. preprocessing import MinMaxScaler
 
-from classTidy import Tidy
+from .classTidy import Tidy
 timeformat = '%Y-%m-%d %H:%M'
 ID = 'ID'
 tidy = Tidy()

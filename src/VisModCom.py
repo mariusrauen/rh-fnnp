@@ -114,8 +114,10 @@ pprint(y_eval_eso.head().to_dict())'''
 # SELECT AN FOSSIL VALUE FOR SUBSEQUENT INDEX EVALUATION 
 logger.info("SELECT A FOSSIL VALUE FOR SUBSEQUENT INDEX EVALUATION")
 target_timestamp = pd.to_datetime('2017-04-12 03:30:00')
-row = y_train_eso[y_train_eso['ID'] == target_timestamp].iloc[0]
-logger.info(f"FOSSIL AT INDEX {row.name} ({target_timestamp}): {row['FOSSIL']}")
+eso_row = y_train_eso[y_train_eso['ID'] == target_timestamp].iloc[0]
+ger_row = y_train_ger[y_train_ger['ID'] == target_timestamp].iloc[0]
+logger.info(f"ESO FOSSIL AT INDEX {eso_row.name} ({target_timestamp}): {eso_row['FOSSIL']}")
+logger.info(f"GER FOSSIL AT INDEX {ger_row.name} ({target_timestamp}): {ger_row['FOSSIL']}")
 
 # ============================================================================================================================
 ## NORMALIZING DATA
@@ -217,10 +219,10 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 # ============================================================================================================================
 
-X_train_eso = X_train_eso.iloc[:400]
-y_train_eso = y_train_eso.iloc[:400]
-X_eval_eso = X_eval_eso.iloc[:400]
-y_eval_eso = y_eval_eso.iloc[:400]
+X_train_eso = X_train_eso.iloc[:400]; X_train_ger = X_train_ger.iloc[:400]
+y_train_eso = y_train_eso.iloc[:400]; y_train_ger = y_train_ger.iloc[:400]
+X_eval_eso = X_eval_eso.iloc[:400]; X_eval_ger = X_eval_ger.iloc[:400]
+y_eval_eso = y_eval_eso.iloc[:400]; y_eval_ger = y_eval_ger.iloc[:400]
 
 class ModelConfig:
     def __init__(self):
@@ -603,7 +605,9 @@ class DatasetType(Enum):
 def train(dataset_type, config):
     # -----------------------------------------------------------------
     timestamp = datetime.now(pytz.timezone('Europe/Berlin')).strftime('%Y%m%d_%H%M')
-    model_dir = Path(__file__).resolve().parent.parent / 'data' / 'models' / f'{dataset_type.name.lower()}_model_{timestamp}'
+    #model_dir = Path(__file__).resolve().parent.parent / 'data' / 'models' / f'{dataset_type.name.lower()}_model_{timestamp}'
+    base_dir = Path(__file__).resolve().parent.parent / 'data' / 'models' / dataset_type.name.lower()
+    model_dir = base_dir / f'model_{timestamp}'
     model_dir.mkdir(parents=True, exist_ok=True)
     
     # Setup logger with model directory path
@@ -646,7 +650,7 @@ def train(dataset_type, config):
         raise
 
 config = ModelConfig()
-dataset_type = DatasetType.ESO
+dataset_type = DatasetType.GER
 model, metrics, predicted_value, last_true_value = train(dataset_type, config)
 
 # ============================================================================================
