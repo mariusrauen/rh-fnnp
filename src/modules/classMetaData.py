@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Dict
 import logging
-from pathlib import Path
 
 @dataclass
 class DatasetConfig:

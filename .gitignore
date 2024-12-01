@@ -1,19 +1,17 @@
 data/models/eso/
 data/models/ger/
+data/processed/
+data/raw/
 
-data/processed/DataPrep/
-data/processed/normalized/
-data/processed/plots/
-
-data/raw/eso_daily-balancing-services-use-of-system-cost-data/
-data/raw/eso_daily-balancing-services-use-of-system-volume-data/
-data/raw/eso_historic-demand-data/
-data/raw/eso_historic-generation-mix-and-carbon-intensity/
-data/raw/eso_system-inertia/
-data/raw/smard_market-data_generation+consumption+physical-power-flow_GER/
-data/raw/smard_market-data_system-stability_GER/
+old/
 
 src/__pycache__/
+*.py[cod]
+.venv/
 src/modules/__pycache__/
+*.py[cod]
+.venv/
+
 tests/
-old/
+
+poetry.lock

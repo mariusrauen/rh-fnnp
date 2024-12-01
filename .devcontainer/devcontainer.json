@@ -1,25 +1,30 @@
 {
-    "name": "Python Dev Container",
-    "dockerFile": "Dockerfile",
-    "context": "..",
-    "workspaceFolder": "/workspace",
-    "settings": {
-        "python.pythonPath": "/usr/local/bin/python",
-        "python.autoComplete.extraPaths": ["/workspace/src"],
-        "files.exclude": {
-            "**/.git": false,
-            "**/.devcontainer": false,
-            "**/.gitignore": false
+    "name": "Python Development Container",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-toolsai.jupyter"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/home/user/app/.venv/bin/python",
+                "python.analysis.extraPaths": [
+                    "/home/user/app"
+                ],
+                "python.formatting.provider": "black"
+            }
         }
     },
-    "extensions": [
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "ms-python.python",
-        "ms-toolsai.jupyter"
-    ],
-    "remoteUser": "root",
+    "remoteUser": "user",
+    "updateRemoteUserUID": true,
     "mounts": [
-        "source=${localWorkspaceFolder},target=/workspace,type=bind"
-    ]
+        "source=${localWorkspaceFolder},target=/home/user/app,type=bind,consistency=cached"
+    ],
+    "postCreateCommand": "sudo chown -R user:user /home/user/app && poetry lock --no-update && poetry install",
+    "postAttachCommand": "sudo chown -R user:user /home/user/app"
 }
