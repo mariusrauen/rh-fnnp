@@ -14,5 +14,6 @@ data/raw/smard_market-data_generation+consumption+physical-power-flow_GER/
 data/raw/smard_market-data_system-stability_GER/
 
 src/__pycache__/
+src/modules/__pycache__/
 tests/
 old/
