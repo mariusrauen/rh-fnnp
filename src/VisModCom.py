@@ -738,7 +738,7 @@ def evaluate_model(dataset_type: DatasetType, timestamp: str):
         
         plt.title('Model Predictions vs True Values (Original Scale)')
         plt.xlabel('Time Steps')
-        plt.ylabel('FOSSIL Values')
+        plt.ylabel('Target Values')
         plt.legend()
         plt.grid(True, alpha=0.3)
     

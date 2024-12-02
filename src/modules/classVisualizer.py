@@ -28,8 +28,10 @@ class Visualizer:
         self.plot_dir.mkdir(parents=True, exist_ok=True)
         
 
-
-        self.eso_power_gen = {
+        #Carbon Intensity gCO2/kWh
+        self.carbon_intensity = {
+            'GAS': self.df_eso['GAS'],
+            'COAL': self.df_eso['COAL'],
             'FOSSIL': self.df_eso['GAS'] + self.df_eso['COAL'],
             'NUCLEAR': self.df_eso['NUCLEAR'],
             'RENEW': self.df_eso['WIND'] + self.df_eso['HYDRO'] + self.df_eso['BIOMASS'] + self.df_eso['SOLAR'],
@@ -48,7 +50,11 @@ class Visualizer:
             'Negative Reserve': self.df_eso['Negative Reserve (MWh)']
         }
 
+
         self.ger_power_gen = {
+            'GAS': self.df_ger['Erzeugung_Erdgas [MWh]'],
+            'SCOAL': self.df_ger['Erzeugung_Steinkohle [MWh]'],
+            'BCOAL': self.df_ger['Erzeugung_Braunkohle [MWh]'],
             'FOSSIL': self.df_ger['Erzeugung_Erdgas [MWh]'] + self.df_ger['Erzeugung_Steinkohle [MWh]'] + self.df_ger['Erzeugung_Braunkohle [MWh]'],
             'NUCLEAR': self.df_ger['Erzeugung_Kernenergie [MWh]'],
             'RENEW': self.df_ger['Erzeugung_Wind Offshore [MWh]'] + self.df_ger['Erzeugung_Wind Onshore [MWh]'] +
@@ -78,21 +84,21 @@ class Visualizer:
         time_axis_eso = self.df_eso['ID']
         time_axis_ger = self.df_ger['ID']
 
-        fig, axes = plt.subplots(5, 2, figsize=(15, 20), sharex=False)
+        fig, axes = plt.subplots(4, 2, figsize=(15, 20), sharex=False) # 5, 2
         fig.suptitle("Energy Data Visualization", fontsize=16)
 
         # Power generation
-        for i, category in enumerate(['FOSSIL', 'NUCLEAR']):
+        """for i, category in enumerate(['FOSSIL', 'NUCLEAR']):
             ax = axes[0, i]
-            ax.plot(time_axis_eso[::n], self.normalize(self.eso_power_gen[category])[::n], label=f"ESO {category}", color='blue')
+            ax.plot(time_axis_eso[::n], self.normalize(self.carbon_intensity[category])[::n], label=f"ESO {category}", color='blue')
             ax.plot(time_axis_ger[::n], self.normalize(self.ger_power_gen[category])[::n], label=f"GER {category}", color='orange')
             ax.set_title(f"Power Generation: {category}")
             ax.legend()
-            ax.grid()
+            ax.grid()"""
 
         for i, category in enumerate(['RENEW', 'PUMP_STORAGE']):
-            ax = axes[1, i]
-            ax.plot(time_axis_eso[::n], self.normalize(self.eso_power_gen[category])[::n], label=f"ESO {category}", color='blue')
+            ax = axes[0, i]
+            ax.plot(time_axis_eso[::n], self.normalize(self.carbon_intensity[category])[::n], label=f"ESO {category}", color='blue')
             ax.plot(time_axis_ger[::n], self.normalize(self.ger_power_gen[category])[::n], label=f"GER {category}", color='orange')
             ax.set_title(f"Power Generation: {category}")
             ax.legend()
@@ -100,7 +106,7 @@ class Visualizer:
 
         # Demand
         for i, category in enumerate(self.eso_demand.keys()):
-            ax = axes[2, i]
+            ax = axes[1, i]
             ax.plot(time_axis_eso[::n], self.normalize(self.eso_demand[category])[::n], label=f"ESO {category}", color='blue')
             ax.plot(time_axis_ger[::n], self.normalize(self.ger_demand[category])[::n], label=f"GER {category}", color='orange')
             ax.set_title(f"Demand: {category}")
@@ -109,7 +115,7 @@ class Visualizer:
 
         # Balancing - Energy Imbalance and Frequency Control
         for i, category in enumerate(['Energy Imbalance', 'Frequency Control']):
-            ax = axes[3, i]
+            ax = axes[2, i]
             ax.plot(time_axis_eso[::n], self.normalize(self.eso_balancing[category])[::n], label=f"ESO {category}", color='blue')
             ax.plot(time_axis_ger[::n], self.normalize(self.ger_balancing[category])[::n], label=f"GER {category}", color='orange')
             ax.set_title(f"Balancing: {category}")
@@ -118,7 +124,7 @@ class Visualizer:
 
         # Balancing - Positive and Negative Reserve
         for i, category in enumerate(['Positive Reserve', 'Negative Reserve']):
-            ax = axes[4, i]
+            ax = axes[3, i]
             ax.plot(time_axis_eso[::n], self.normalize(self.eso_balancing[category])[::n], label=f"ESO {category}", color='blue')
             ax.plot(time_axis_ger[::n], self.normalize(self.ger_balancing[category])[::n], label=f"GER {category}", color='orange')
             ax.set_title(f"Balancing: {category}")
