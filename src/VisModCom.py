@@ -58,9 +58,11 @@ visualizer.plot_correlation_heatmap(features_eso, features_ger)
 # SPLITTING DATA
 logger.info('SPLITTING DATA')
 
+# SET TARGET FEATURE
+target_name = 'TARGET' # OVERALL DEMAND
+
 # ESO
-target_name = 'FOSSIL'
-eso_combine_cols = df_eso['GAS'] + df_eso['COAL']
+eso_combine_cols = df_eso['ENGLAND_WALES_DEMAND'] # + df_eso['XXX'] + df_eso['XXX'] + ...
 df_eso[target_name] = eso_combine_cols 
 eso_target = df_eso[target_name]
 X_eso_dd = df_eso.loc[:, ~df_eso.columns.isin(eso_target + eso_combine_cols)]
@@ -82,8 +84,9 @@ y_eval_eso = pd.DataFrame({
 
 # ----------------------------------------------------------------------------------------------------------------------------
 # GER
-ger_combine_cols = df_ger['Erzeugung_Erdgas [MWh]'] + df_ger['Erzeugung_Steinkohle [MWh]'] + df_ger['Erzeugung_Braunkohle [MWh]']
-df_ger[target_name] = ger_combine_cols
+
+ger_combine_cols = df_ger['Stromverbrauch_Gesamt (Netzlast) [MWh]'] # + df_ger['XXX'] + df_ger['XXX'] + ...
+df_ger[target_name] = ger_combine_cols # allocate the features to the new created column named target
 ger_target = df_ger[target_name]
 X_ger_dd = df_ger.loc[:, ~df_ger.columns.isin(ger_target + ger_combine_cols)]
 y_ger_dd = ger_target
@@ -111,13 +114,13 @@ pprint(y_eval_eso.head().to_dict())'''
 
 
 # ============================================================================================================================
-# SELECT AN FOSSIL VALUE FOR SUBSEQUENT INDEX EVALUATION 
-logger.info("SELECT A FOSSIL VALUE FOR SUBSEQUENT INDEX EVALUATION")
+# SELECT AN Target VALUE FOR SUBSEQUENT INDEX EVALUATION 
+logger.info("SELECT A Target VALUE FOR SUBSEQUENT INDEX EVALUATION")
 target_timestamp = pd.to_datetime('2017-04-12 03:30:00')
 eso_row = y_train_eso[y_train_eso['ID'] == target_timestamp].iloc[0]
 ger_row = y_train_ger[y_train_ger['ID'] == target_timestamp].iloc[0]
-logger.info(f"ESO FOSSIL AT INDEX {eso_row.name} ({target_timestamp}): {eso_row['FOSSIL']}")
-logger.info(f"GER FOSSIL AT INDEX {ger_row.name} ({target_timestamp}): {ger_row['FOSSIL']}")
+logger.info(f"ESO {target_name} AT INDEX {eso_row.name} ({target_timestamp}): {eso_row[target_name]}")
+logger.info(f"GER {target_name} AT INDEX {ger_row.name} ({target_timestamp}): {ger_row[target_name]}")
 
 # ============================================================================================================================
 ## NORMALIZING DATA
@@ -161,12 +164,12 @@ X_train_ger, X_eval_ger, y_train_ger, y_eval_ger, yger_scaler = normalize(X_trai
 # Check scaler
 eso_row = y_train_eso[y_train_eso['ID'] == target_timestamp].iloc[0]
 ger_row = y_train_ger[y_train_ger['ID'] == target_timestamp].iloc[0]
-normalized_esovalue = eso_row['FOSSIL']
-normalized_gervalue = ger_row['FOSSIL']
+normalized_esovalue = eso_row[target_name]
+normalized_gervalue = ger_row[target_name]
 original_esovalue = yeso_scaler.inverse_transform([[normalized_esovalue]])[0][0]
 original_gervalue = yger_scaler.inverse_transform([[normalized_gervalue]])[0][0]
-logger.info(f"ESO FOSSIL AT INDEX {eso_row.name} ({target_timestamp}): {normalized_esovalue}, NORMALIZE ESO BACK: {original_esovalue}")
-logger.info(f"GER FOSSIL AT INDEX {ger_row.name} ({target_timestamp}): {normalized_gervalue}, NORMALIZE GER BACK: {original_gervalue}")
+logger.info(f"ESO TARGET AT INDEX {eso_row.name} ({target_timestamp}): {normalized_esovalue}, NORMALIZE ESO BACK: {original_esovalue}")
+logger.info(f"GER TARGEt AT INDEX {ger_row.name} ({target_timestamp}): {normalized_gervalue}, NORMALIZE GER BACK: {original_gervalue}")
 
 # ============================================================================================================================
 ## INSPECT NORMALIZED DATA AND CORRELATIONS
@@ -239,19 +242,21 @@ class ModelConfig:
         self.batch_size = 32
         self.learning_rate = 0.001
         self.epochs = 30
-        self.dropout = 0.3  
+        self.dropout = 0.3                  # for regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
         self.patience = 16
         self.grad_clip = 1.0         
         self.scheduler_factor = 0.6         # Learning rate decay factor
         self.scheduler_patience = 10        # Learning rate decay patience
         self.output_size = 1
+                                            # residual connections?
+                                            # batch normalization?
 
 # ============================================================================================
 
 class TimeSeriesDataset(Dataset):
     def __init__(self, X, y, config):
         self.X = torch.FloatTensor(X.select_dtypes(include=['float64']).values)
-        self.y = torch.FloatTensor(y['FOSSIL'].values)
+        self.y = torch.FloatTensor(y[target_name].values)
         self.sequence_length = config.sequence_length
         
     def __len__(self):
@@ -512,7 +517,7 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
             raise ValueError(f"Target timestamp {target_timestamp} not found in data")
         target_idx = mask.idxmax()
     
-    logger.info(f"Target index: {target_idx}")
+    logger.info(f"Dataset internal target index: {target_idx}")
     
     # Get sequence indices
     sequence_start = target_idx - config.sequence_length
@@ -540,7 +545,7 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
         
         # Get historical values for visualization
         history_start = max(0, target_idx - 5)
-        true_values_normalized = y_train['FOSSIL'].iloc[history_start:target_idx + 1].values
+        true_values_normalized = y_train[target_name].iloc[history_start:target_idx + 1].values
         timestamps = X_train['ID'].iloc[history_start:target_idx + 1]
         
         # Inverse transform values
@@ -561,16 +566,16 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
         # Log prediction results
         logger.info(f"\nTarget timestamp: {timestamps.iloc[-1]}")
         logger.info(f"Target index: {target_idx}")
-        logger.info(f"Actual value (Original Scale): {target_true_original:.4f}")
-        logger.info(f"Predicted value (Original Scale): {predicted_value_original:.4f}")
+        logger.info(f"Actual value (Original scale): {target_true_original:.4f}")
+        logger.info(f"Predicted value (Original scale): {predicted_value_original:.4f}")
         
         # Calculate metrics
         abs_error = abs(predicted_value_original - target_true_original)
         rel_error = (abs_error / target_true_original) * 100
         
         logger.info("\nPrediction Metrics (Original Scale):")
-        logger.info(f"Absolute Error: {abs_error:.4f}")
-        logger.info(f"Relative Error: {rel_error:.2f}%")
+        logger.info(f"Absolute error: {abs_error:.4f}")
+        logger.info(f"Relative error: {rel_error:.2f}%")
         
         if len(true_values_original) > 1:
             prev_true = true_values_original[-2]
@@ -590,7 +595,7 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
                 label='Predicted Value')
         plt.title('Historical Values and Prediction (Original Scale)')
         plt.xlabel('Time')
-        plt.ylabel('FOSSIL Values')
+        plt.ylabel('TARGET Values')
         plt.xticks(rotation=45)
         plt.legend()
         plt.grid(True)

@@ -6,11 +6,14 @@ Original Author: marius.rauen@rfh-campus.de
 #### Render with Ctrl + Shift + V
 
 This README contains information regarding the project structure and the processed data (Introduction), and the software exectuion (Instruction).
-For this Data Science task, the Hadley-Wickham method is used to investigate the data provided by the 'Electricity System Operator' (ESO) and by 'Strom- und Gasmarktdaten' (SMARD) of the German 'Bundesnetzagentur. The method steps of Hadley-Wickham are shown in the image below.
+For this Data Science task, the Hadley-Wickham method is used to investigate the data provided by the 'Electricity System Operator' (ESO) and by 'Strom- und Gasmarktdaten' (SMARD) of the German 'Bundesnetzagentur. The SMARD dataset is abbrevated with 'GER'. The method steps of Hadley-Wickham are shown in the image below.
 
 #### AIM:
-To be filled ... 
+The aim of the project is to predict one author defined feature of the dataset. For this project work, this feature is overall demand of the United Kingdom, Germany respectively with the label 'OVERALL'. 
 
+TODO: check target_idx and original idx
+TODO: visualize histogram
+TODO: transfer learning
 
 Sources of the raw data (2024/09/28):
 | Name                                                      | Source                                                                                    | 
@@ -38,11 +41,13 @@ Sources of the raw data (2024/09/28):
 
 
 # **INSTRUCTION**
-> **Get project from https://github.com/mariusrauen/rh-fnnp and connect Docker environment.** 
+> **Get project from https://github.com/mariusrauen/rh-fnnp and connect Docker container.**
+
+> **Get raw data and implement in data initialized data directory of the project**
 
 > **Run DataPrep.py to generate the data for the steps Visualise, Model and Communicate.**
 
-> **After that, execute the jupyter notebooks for Visualise, Communicate and Model in the order as listed in this README.**
+> **After that, execute VisModCom.py to Visualise, Model and Communicate.**
 
 # classImporter.py
 Contains the **Importer*** class to import data from national grid 'Electricity System Operator' (ESO) of Great Britain (GB) and from 'Bundesnetzagentur' in Germany.
@@ -81,14 +86,16 @@ Contains a **DataProcessor** class combining the code of Import, Tidy and Transf
     - save_dataframes_to_csv
     - main
 
-
+![Hadley-Wickham-method](./data/figures/feature_table.jpg)
 
 # **NOTE**
 > **Up this point, the project steps Import, Tidy and Transform are processed with python scripts (.py). Further model steps Visualization, Modelling and Communication are handled in VisModCom.py. Information related to the used and processed datasets are saved to the directory that is named 'processed'. Information and results regarding the models are saved to the directory that is named 'models'.**
  
-
+![Hadley-Wickham-method](./data/figures/modeling_process.png)
 
 # VisModCom.py
+This file contains the steps for Visualization, Modeling and Communication. 
+
 ## Visualization
 In this project step, the prepared data are inspected.
 
