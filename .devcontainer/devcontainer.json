@@ -25,6 +25,6 @@
     "mounts": [
         "source=${localWorkspaceFolder},target=/home/user/app,type=bind,consistency=cached"
     ],
-    "postCreateCommand": "sudo chown -R user:user /home/user/app && poetry lock --no-update && poetry install",
+    "postCreateCommand": "sudo chown -R user:user /home/user/app && uv venv && uv pip install -r .devcontainer/requirements.txt",
     "postAttachCommand": "sudo chown -R user:user /home/user/app"
 }

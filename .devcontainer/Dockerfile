@@ -41,15 +41,10 @@ ENV HOME=/home/user \
 # Set the working directory to the user's home directory
 WORKDIR $HOME/app
 
-# Install poetry
-RUN curl -sSL https://install.python-poetry.org | python3 - \
-    && poetry config virtualenvs.in-project true
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 
-ENV POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=1
-
-# We don't copy the project files here as they will be mounted
-# through the devcontainer.json configuration
+ENV VIRTUAL_ENV=/home/user/app/.venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 CMD ["/bin/bash"]
