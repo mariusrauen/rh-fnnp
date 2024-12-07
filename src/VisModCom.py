@@ -6,6 +6,7 @@ from sklearn. model_selection import train_test_split
 from sklearn. preprocessing import MinMaxScaler
 from pathlib import Path
 from pprint import pprint
+from datetime import timedelta
 
 from modules.classVisualizer import Visualizer
 from modules.classVisualizer import find_high_correlations, inspect_data
@@ -225,29 +226,33 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 # ============================================================================================================================
 # MAKE SMALL DATASET FOR DEBUGGING
 
-X_train_eso = X_train_eso.iloc[:400]; X_train_ger = X_train_ger.iloc[:400]
+'''X_train_eso = X_train_eso.iloc[:400]; X_train_ger = X_train_ger.iloc[:400]
 y_train_eso = y_train_eso.iloc[:400]; y_train_ger = y_train_ger.iloc[:400]
 X_eval_eso = X_eval_eso.iloc[:400]; X_eval_ger = X_eval_ger.iloc[:400]
-y_eval_eso = y_eval_eso.iloc[:400]; y_eval_ger = y_eval_ger.iloc[:400]
+y_eval_eso = y_eval_eso.iloc[:400]; y_eval_ger = y_eval_ger.iloc[:400]'''
 
 # ============================================================================================
 
 class ModelConfig:
     def __init__(self):
-        self.sequence_length = 24
-        self.val_split = 0.25
+        self.sequence_length = 96           # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
+        self.val_split = 0.25               # Split for modelling
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.hidden_size = 16
-        self.num_layers = 2
-        self.batch_size = 32
+        self.hidden_size = 192              # Neurons in LSTM for each hidden layer
+        self.num_layers = 3                 # Number of hidden layers
+        self.batch_size = 32                # Number of sequences processed together in one iteration
+                                            # Each sequence has length sequence_length (e.g. 48)
+                                            # Total batches = dataset_size / batch_size
+                                            # e.g. (datapoints=100000) / (batch_size=32) = 3125 batches
         self.learning_rate = 0.001
-        self.epochs = 30
-        self.dropout = 0.3                  # for regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
+        self.epochs = 48                    # One complete pass of all data to train
+        self.dropout = 0.1                  # for regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
         self.patience = 16
-        self.grad_clip = 1.0         
+        self.grad_clip = 0.8         
         self.scheduler_factor = 0.6         # Learning rate decay factor
         self.scheduler_patience = 10        # Learning rate decay patience
         self.output_size = 1
+        self.num_threads = 6
                                             # residual connections?
                                             # batch normalization?
 
@@ -331,6 +336,11 @@ def calculate_metrics(y_true, y_pred):
 # ============================================================================================
 
 def train_model(X_train, y_train, config, logger, model_dir):  
+
+    start_time = datetime.now()
+    epoch_times = []
+    logger.info(f"Training started at: {start_time}")
+
     # Ensure we have enough data for the sequence length
     min_required_length = config.sequence_length + 1
     if len(X_train) < min_required_length:
@@ -395,6 +405,9 @@ def train_model(X_train, y_train, config, logger, model_dir):
 
 
     for epoch in range(config.epochs):
+
+        epoch_start = datetime.now()
+
         # Training phase
         model.train()
         train_loss = 0
@@ -477,6 +490,27 @@ def train_model(X_train, y_train, config, logger, model_dir):
             logger.info("\nValidation Metrics:")
             for metric, value in val_metrics.items():
                 logger.info(f"{metric}: {value:.4f}")
+
+        epoch_end = datetime.now()
+        epoch_duration = epoch_end - epoch_start
+        epoch_times.append(epoch_duration)
+        
+        logger.info(f"""
+        Epoch {epoch + 1} timing:
+        Start: {epoch_start}
+        End: {epoch_end}
+        Duration: {epoch_duration}
+        Average batch time: {epoch_duration / len(train_loader)}
+        """)
+
+    # Log final timing statistics
+    logger.info(f"""
+    Training Summary:
+    Total duration: {datetime.now() - start_time}
+    Average epoch time: {sum(epoch_times, timedelta()) / len(epoch_times)}
+    Fastest epoch: {min(epoch_times)}
+    Slowest epoch: {max(epoch_times)}
+    """)
     
     plt.figure(figsize=(12, 6))
     plt.plot(train_losses, label='Training Loss')
@@ -618,6 +652,7 @@ class DatasetType(Enum):
 
 def train(dataset_type, config):
     # -----------------------------------------------------------------
+    torch.set_num_threads(config.num_threads)
     timestamp = datetime.now(pytz.timezone('Europe/Berlin')).strftime('%Y%m%d_%H%M')
     base_dir = Path(__file__).resolve().parent.parent / 'data' / 'models' / dataset_type.name.lower()
     model_dir = base_dir / f'model_{timestamp}'
@@ -662,8 +697,8 @@ def train(dataset_type, config):
         raise
 
 config = ModelConfig()
-dataset_type = DatasetType.GER
-model, metrics, predicted_value, last_true_value = train(dataset_type, config)
+'''dataset_type = DatasetType.ESO
+model, metrics, predicted_value, last_true_value = train(dataset_type, config)'''
 
 # ============================================================================================
 # EVALUATE SAVED MODEL WITH NEW DATA
@@ -785,7 +820,7 @@ else:
 # ============================================================================================
 
 
-"""# ============================================================================================
+# ============================================================================================
 # USER INTERACTION
 logger.info('START USER INTERACTION')
 
@@ -856,6 +891,7 @@ while True:
         for metric, value in results['metrics'].items():
             print(f"{metric}: {value:.4f}")
 
-# ============================================================================================"""
+# ============================================================================================
+
 # END PROJECT
 logger.info('END PROJECT')
