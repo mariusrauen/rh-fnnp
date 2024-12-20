@@ -226,21 +226,21 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 # ============================================================================================================================
 # MAKE SMALL DATASET FOR DEBUGGING
 
-'''X_train_eso = X_train_eso.iloc[:400]; X_train_ger = X_train_ger.iloc[:400]
+X_train_eso = X_train_eso.iloc[:400]; X_train_ger = X_train_ger.iloc[:400]
 y_train_eso = y_train_eso.iloc[:400]; y_train_ger = y_train_ger.iloc[:400]
 X_eval_eso = X_eval_eso.iloc[:400]; X_eval_ger = X_eval_ger.iloc[:400]
-y_eval_eso = y_eval_eso.iloc[:400]; y_eval_ger = y_eval_ger.iloc[:400]'''
+y_eval_eso = y_eval_eso.iloc[:400]; y_eval_ger = y_eval_ger.iloc[:400]
 
 # ============================================================================================
 
 class ModelConfig:
     def __init__(self):
-        self.sequence_length = 96           # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
+        self.sequence_length = 48           # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
         self.val_split = 0.25               # Split for modelling
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.hidden_size = 192              # Neurons in LSTM for each hidden layer
         self.num_layers = 3                 # Number of hidden layers
-        self.batch_size = 32                # Number of sequences processed together in one iteration
+        self.batch_size = 48                # Number of sequences processed together in one iteration
                                             # Each sequence has length sequence_length (e.g. 48)
                                             # Total batches = dataset_size / batch_size
                                             # e.g. (datapoints=100000) / (batch_size=32) = 3125 batches
@@ -495,13 +495,7 @@ def train_model(X_train, y_train, config, logger, model_dir):
         epoch_duration = epoch_end - epoch_start
         epoch_times.append(epoch_duration)
         
-        logger.info(f"""
-        Epoch {epoch + 1} timing:
-        Start: {epoch_start}
-        End: {epoch_end}
-        Duration: {epoch_duration}
-        Average batch time: {epoch_duration / len(train_loader)}
-        """)
+        logger.info(f'Epoch {epoch + 1} duration: {epoch_duration}, average batch time: {epoch_duration / len(train_loader)}')
 
     # Log final timing statistics
     logger.info(f"""

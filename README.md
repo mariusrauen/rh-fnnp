@@ -55,8 +55,6 @@ Contains the **Importer*** class to import data from national grid 'Electricity 
     - combine_eso
     - combine_smard
 
-
-
 # classTidy.py
 Contains the **Tidy** class for an initial data structuring by printing information of the raw data and standardizing the time stamps for further processing
 #### Methods:
