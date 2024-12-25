@@ -1,11 +1,26 @@
 # ============================================================================================================================
+## HEADER
+# Module: Fuzzy Systems and Neural Networks  
+# Name: Raun, Marius
+# Matricle number: 131242002
+# Contact: marius.rauen@rfh-campus.de
+
+# Strucutre information:
+# ! Familiarize yourself with the README file
+# ! New sections are introduced with two hashtags, space and in capitol letters, e.g. ## HEADER
+# ! Comments are introduced with one hashtag and space, e.g. # Base directory path for all data operations
+# ! Inactive code is marked with one hastag and no space, e.g. #print()
+# ============================================================================================================================
+
+
+
+# ============================================================================================================================
 ## IMPORT LIBRARIES
 
 import pandas as pd
 from sklearn. model_selection import train_test_split
 from sklearn. preprocessing import MinMaxScaler
 from pathlib import Path
-from pprint import pprint
 from datetime import timedelta
 
 from modules.classVisualizer import Visualizer
@@ -13,12 +28,15 @@ from modules.classVisualizer import find_high_correlations, inspect_data
 from modules.classMetaData import setup_logger
 
 logger = setup_logger()
+# ============================================================================================================================
+
+
 
 # ============================================================================================================================
-# READ IN FROM DATA PREPERATION
+## READ IN FROM DATA PREPERATION
 logger.info("READ IN FROM DATA PREPERATION")
 
-data_path = Path(__file__).resolve().parent.parent / 'data' / 'processed' / 'DataPrep'
+data_path = Path(__file__).resolve().parent.parent / 'data' / 'processed' / 'DataPrep' # Set the data path
 
 # Read in data
 df_eso = pd.read_csv(data_path / 'eso' / 'df_eso.csv', delimiter=',', parse_dates=['ID']) #, parse_dates=['ID']
@@ -31,14 +49,17 @@ ger_dir = data_path / 'ger'; ger_dir.mkdir(parents=True, exist_ok=True)
 # CALL FUNCTION FOR INSPECTION 
 _ = inspect_data(df_eso, output_path=Path(f'{data_path}/eso/df_eso.txt'))
 _ = inspect_data(df_ger, output_path=Path(f'{data_path}/ger/df_ger.txt'))
+# ============================================================================================================================
+
+
 
 # ============================================================================================================================
 ## VISUALIZE COMPARABLE FEATURES
 logger.info("VISUALIZE COMPARABLE FEATURES")
 
 # Visualize over time
-visualizer = Visualizer(df_eso, df_ger)
-visualizer.plot_data(n=1000)
+visualizer = Visualizer(df_eso, df_ger) # Create a visualizer object
+visualizer.plot_data(n=1000) 
 
 # Visualize correlation heat map of directly comparable features form ESO and GER
 features_eso = ['GAS', 'COAL', 'NUCLEAR', 'WIND', 'HYDRO', 'BIOMASS', 'SOLAR', 'STORAGE',
@@ -54,6 +75,9 @@ features_ger = ['Erzeugung_Erdgas [MWh]', 'Erzeugung_Steinkohle [MWh]', 'Erzeugu
 
 visualizer = Visualizer(df_eso, df_ger)
 visualizer.plot_correlation_heatmap(features_eso, features_ger)
+# ============================================================================================================================
+
+
 
 # ============================================================================================================================
 # SPLITTING DATA
@@ -108,20 +132,29 @@ y_eval_ger = pd.DataFrame({
 
 # ----------------------------------------------------------------------------------------------------------------------------
 
-'''pprint(X_train_eso.head().to_dict())
+'''
+pprint(X_train_eso.head().to_dict())
 pprint(X_eval_eso.head().to_dict())
 pprint(y_train_eso.head().to_dict())
-pprint(y_eval_eso.head().to_dict())'''
+pprint(y_eval_eso.head().to_dict())
+'''
+# ============================================================================================================================
+
 
 
 # ============================================================================================================================
-# SELECT AN Target VALUE FOR SUBSEQUENT INDEX EVALUATION 
+# SELECT A TARGET VALUE FOR SUBSEQUENT INDEX EVALUATION 
 logger.info("SELECT A Target VALUE FOR SUBSEQUENT INDEX EVALUATION")
-target_timestamp = pd.to_datetime('2017-04-12 03:30:00')
+#target_timestamp = pd.to_datetime('2017-04-12 03:30:00')
+target_timestamp = y_train_eso['ID'].iloc[-1]
+logger.info(f"Using latest available timestamp: {target_timestamp}")
 eso_row = y_train_eso[y_train_eso['ID'] == target_timestamp].iloc[0]
 ger_row = y_train_ger[y_train_ger['ID'] == target_timestamp].iloc[0]
 logger.info(f"ESO {target_name} AT INDEX {eso_row.name} ({target_timestamp}): {eso_row[target_name]}")
 logger.info(f"GER {target_name} AT INDEX {ger_row.name} ({target_timestamp}): {ger_row[target_name]}")
+# ============================================================================================================================
+
+
 
 # ============================================================================================================================
 ## NORMALIZING DATA
@@ -171,6 +204,9 @@ original_esovalue = yeso_scaler.inverse_transform([[normalized_esovalue]])[0][0]
 original_gervalue = yger_scaler.inverse_transform([[normalized_gervalue]])[0][0]
 logger.info(f"ESO TARGET AT INDEX {eso_row.name} ({target_timestamp}): {normalized_esovalue}, NORMALIZE ESO BACK: {original_esovalue}")
 logger.info(f"GER TARGEt AT INDEX {ger_row.name} ({target_timestamp}): {normalized_gervalue}, NORMALIZE GER BACK: {original_gervalue}")
+# ============================================================================================================================
+
+
 
 # ============================================================================================================================
 ## INSPECT NORMALIZED DATA AND CORRELATIONS
@@ -198,14 +234,13 @@ _ = inspect_data(y_eval_ger, output_path=path_ger_norm / f'y_eval_ger.txt')
 # Correlation
 eso_corr = find_high_correlations(X_train_eso, threshold, output_path=path_eso_norm / f'eso_corr_tresh{threshold}.txt')
 ger_corr = find_high_correlations(X_train_ger, threshold, output_path=path_ger_norm / f'ger_corr_tresh{threshold}.txt')
+# ============================================================================================================================
+
+
 
 # ============================================================================================================================
 ## IMPORT FOR MODELING
 logger.info('IMPORT FOR MODELING')
-# https://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html
-# https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html 
-# TODO - Commenting
-# TODO - Docker
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -223,18 +258,21 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from tqdm import tqdm
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-# ============================================================================================================================
-# MAKE SMALL DATASET FOR DEBUGGING
+# -------------------------------------------------------------------------------------------------------------------------------- 
 
-X_train_eso = X_train_eso.iloc[:400]; X_train_ger = X_train_ger.iloc[:400]
-y_train_eso = y_train_eso.iloc[:400]; y_train_ger = y_train_ger.iloc[:400]
-X_eval_eso = X_eval_eso.iloc[:400]; X_eval_ger = X_eval_ger.iloc[:400]
-y_eval_eso = y_eval_eso.iloc[:400]; y_eval_ger = y_eval_ger.iloc[:400]
+# Make small dataset for testing
+'''size = 400
+X_train_eso = X_train_eso.iloc[:size]; X_train_ger = X_train_ger.iloc[:size]
+y_train_eso = y_train_eso.iloc[:size]; y_train_ger = y_train_ger.iloc[:size]
+X_eval_eso = X_eval_eso.iloc[:size]; X_eval_ger = X_eval_ger.iloc[:size]
+y_eval_eso = y_eval_eso.iloc[:size]; y_eval_ger = y_eval_ger.iloc[:size]'''
+# ============================================================================================================================
+
+
 
 # ============================================================================================
-
-class ModelConfig:
-    def __init__(self):
+class ModelConfig: # Configuration class for the model
+    def __init__(self): 
         self.sequence_length = 48           # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
         self.val_split = 0.25               # Split for modelling
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -245,8 +283,8 @@ class ModelConfig:
                                             # Total batches = dataset_size / batch_size
                                             # e.g. (datapoints=100000) / (batch_size=32) = 3125 batches
         self.learning_rate = 0.001
-        self.epochs = 48                    # One complete pass of all data to train
-        self.dropout = 0.1                  # for regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
+        self.epochs = 24                    # One complete pass of all data to train
+        #self.dropout = 0.1                  # TODO REMOVE DROPOUT FOR FINAL MODEL for regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
         self.patience = 16
         self.grad_clip = 0.8         
         self.scheduler_factor = 0.6         # Learning rate decay factor
@@ -255,48 +293,133 @@ class ModelConfig:
         self.num_threads = 6
                                             # residual connections?
                                             # batch normalization?
-
 # ============================================================================================
 
-class TimeSeriesDataset(Dataset):
+
+
+# ============================================================================================
+class TimeSeriesDataset(Dataset): 
     def __init__(self, X, y, config):
-        self.X = torch.FloatTensor(X.select_dtypes(include=['float64']).values)
-        self.y = torch.FloatTensor(y[target_name].values)
-        self.sequence_length = config.sequence_length
+        self.X = torch.FloatTensor(X.select_dtypes(include=['float64']).values) # Create a tensor from X data, only float64 values
+        self.y = torch.FloatTensor(y[target_name].values) # Create a tensor from y data, only target_name values 
+        self.sequence_length = config.sequence_length # Set the sequence length
         
-    def __len__(self):
-        return len(self.X) - self.sequence_length
-        
+    def __len__(self): # Return the length of the dataset
+        return len(self.X) - self.sequence_length # Return the length of the X data minus the sequence length
+    
     def __getitem__(self, idx):
         return (self.X[idx:idx + self.sequence_length],
                 self.y[idx + self.sequence_length])
-    
 # ============================================================================================
 
+
+
+# ============================================================================================
+class LSTMCellWithBN(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(LSTMCellWithBN, self).__init__()
+        
+        # Combined linear transformation for all gates
+        self.gates = nn.Linear(input_size + hidden_size, 4 * hidden_size)
+        self.hidden_size = hidden_size
+        
+        # Batch normalization layers - one for each gate type before activation
+        self.bn_ingate = nn.BatchNorm1d(hidden_size)
+        self.bn_forgetgate = nn.BatchNorm1d(hidden_size)
+        self.bn_cellgate = nn.BatchNorm1d(hidden_size)
+        self.bn_outgate = nn.BatchNorm1d(hidden_size)
+
+    # ----------------------------------------------------------------------------------------
+
+    def forward(self, x, hidden):
+        hx, cx = hidden
+        
+        # Concatenate input and hidden state
+        gates = self.gates(torch.cat((x, hx), dim=1))
+        
+        # Split gates
+        chunks = gates.chunk(4, dim=1)
+        
+        # Apply batch norm before each activation function
+        ingate = torch.sigmoid(self.bn_ingate(chunks[0]))
+        forgetgate = torch.sigmoid(self.bn_forgetgate(chunks[1]))
+        cellgate = torch.tanh(self.bn_cellgate(chunks[2]))
+        outgate = torch.sigmoid(self.bn_outgate(chunks[3]))
+        
+        cy = (forgetgate * cx) + (ingate * cellgate)
+        hy = outgate * torch.tanh(cy)
+        
+        return hy, cy
+# ============================================================================================
+
+
+
+# ============================================================================================
+class LSTMWithBN(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(LSTMWithBN, self).__init__()
+        self.cell = LSTMCellWithBN(input_size, hidden_size)
+        self.hidden_size = hidden_size
+
+    # ----------------------------------------------------------------------------------------
+
+    def forward(self, x, hidden=None):
+        batch_size, seq_len, _ = x.size()
+        
+        if hidden is None:
+            hidden = (torch.zeros(batch_size, self.hidden_size).to(x.device),
+                     torch.zeros(batch_size, self.hidden_size).to(x.device))
+        
+        outputs = []
+        for t in range(seq_len):
+            hidden = self.cell(x[:, t, :], hidden)
+            outputs.append(hidden[0])
+        
+        return torch.stack(outputs, dim=1), hidden
+# ============================================================================================
+
+
+
+# ============================================================================================
 class LSTMPredictor(nn.Module):
     def __init__(self, input_size, config):
         super(LSTMPredictor, self).__init__()
-        self.lstm = nn.LSTM(
-            input_size=input_size,
-            hidden_size=config.hidden_size,
-            num_layers=config.num_layers,
-            batch_first=True,
-            dropout=config.dropout
-        )
-        #self.bn = nn.BatchNorm1d(hidden_size)
-        self.dropout = nn.Dropout(config.dropout)
+        
+        # Create list of LSTM layers
+        self.lstm_layers = nn.ModuleList()
+        
+        # First layer
+        self.lstm_layers.append(LSTMWithBN(input_size, config.hidden_size))
+        
+        # Additional layers
+        for _ in range(config.num_layers - 1):
+            self.lstm_layers.append(LSTMWithBN(config.hidden_size, config.hidden_size))
+        
+        # Output layers
+        #self.dropout = nn.Dropout(config.dropout)       # TODO REMOVE DROPOUT FOR FINAL MODEL
         self.linear = nn.Linear(config.hidden_size, config.output_size)
     
-    def forward(self, x):
-        lstm_out, _ = self.lstm(x)
-        #lstm_out = self.bn(lstm_out[:, -1, :])
-        #lstm_out = self.dropout(lstm_out)
-        lstm_out = self.dropout(lstm_out[:, -1, :])
-        predictions = self.linear(lstm_out)
-        return predictions
+    # ----------------------------------------------------------------------------------------
 
+    def forward(self, x):
+        hidden = None
+        for lstm in self.lstm_layers:
+            x, hidden = lstm(x, hidden)
+            
+        # Use only the last output
+        x = x[:, -1, :]
+        
+        # Apply dropout and linear layer
+        #x = self.dropout(x)                             # TODO REMOVE DROPOUT FOR FINAL MODEL
+        predictions = self.linear(x) 
+        
+        return predictions
 # ============================================================================================
 
+
+
+# ============================================================================================
+## METRICS
 def calculate_metrics(y_true, y_pred):
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
@@ -332,9 +455,12 @@ def calculate_metrics(y_true, y_pred):
         'MAE': mae,
         'R2': r2
     }
-
 # ============================================================================================
 
+
+
+# ============================================================================================
+## TRAINING
 def train_model(X_train, y_train, config, logger, model_dir):  
 
     start_time = datetime.now()
@@ -356,8 +482,10 @@ def train_model(X_train, y_train, config, logger, model_dir):
     y_train_split = y_train.iloc[:split_idx + config.sequence_length]
     y_val_split = y_train.iloc[split_idx:]
     
-    logger.info(f"Training split size: {len(X_train_split)}")
-    logger.info(f"Validation split size: {len(X_val_split)}")
+    logger.info(f"X_train split size 75%: {len(X_train_split)}")
+    logger.info(f"y_train split size 75%: {len(y_train_split)}")
+    logger.info(f"X_val split size 25%: {len(X_val_split)}")
+    logger.info(f"y_val split size 25%: {len(y_val_split)}")
     
     # Create datasets
     train_dataset = TimeSeriesDataset(X_train_split, y_train_split, config)
@@ -370,15 +498,7 @@ def train_model(X_train, y_train, config, logger, model_dir):
     val_loader = DataLoader(val_dataset, batch_size=config.batch_size, shuffle=False)
     
     # ---------------------------------------------------------------------------------------
-    # Logging info
-    model_architecture = f"""Model Architecture:
-        LSTMPredictor(
-            (lstm): LSTM(84, 16, num_layers=2, batch_first=True, dropout=0.3)
-            (dropout): Dropout(p=0.3, inplace=False)
-            (linear): Linear(in_features=16, out_features=1, bias=True)
-        )"""
-    logger.info(model_architecture)
-
+    
     logger.info("Model Configuration:")
     for param, value in vars(config).items():
         logger.info(f"{param}: {value}")
@@ -399,10 +519,9 @@ def train_model(X_train, y_train, config, logger, model_dir):
     best_loss = float('inf')
     patience_counter = 0
     patience = config.patience
-    # --------------------------------------------------------------------------
+    
     train_metrics = None
     val_metrics = None
-
 
     for epoch in range(config.epochs):
 
@@ -522,9 +641,12 @@ def train_model(X_train, y_train, config, logger, model_dir):
     plt.close()
     
     return model, {'train': train_metrics, 'val': val_metrics}
-
 # ============================================================================================
 
+
+
+# ============================================================================================
+## PREDICTION
 def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model_dir,target_timestamp=None):
     # Verify timestamps
     y_train = y_train.sort_values('ID')
@@ -552,7 +674,7 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
     if sequence_start < 0:
         raise ValueError(f"Not enough historical data for prediction. Need at least {config.sequence_length} points before target.")
     
-    # Prepare sequence data
+    # Prepare sequence data for final prediction
     sequence_data = X_train.iloc[sequence_start:target_idx].select_dtypes(include=['float64']).values
     
     # Validate sequence data
@@ -561,89 +683,140 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
     
     logger.info(f"Sequence shape before processing: {sequence_data.shape}")
     
-    # Make prediction
+    # Make predictions
     model.eval()
     with torch.no_grad():
-        sequence = torch.FloatTensor(sequence_data).unsqueeze(0)  # Add batch dimension
-        if sequence.size(1) == 0:
-            raise ValueError("Empty sequence data")
-            
-        prediction = model(sequence)
-        predicted_value_normalized = prediction.item()
-        
         # Get historical values for visualization
         history_start = max(0, target_idx - 5)
         true_values_normalized = y_train[target_name].iloc[history_start:target_idx + 1].values
         timestamps = X_train['ID'].iloc[history_start:target_idx + 1]
         
-        # Inverse transform values
+        # Calculate predictions for each point including the target
+        predicted_values_normalized = []
+        valid_timestamps = []
+        
+        for i in range(history_start, target_idx + 1):
+            seq_start = i - config.sequence_length
+            if seq_start >= 0:  # Only predict if we have enough historical data
+                seq_data = X_train.iloc[seq_start:i].select_dtypes(include=['float64']).values
+                if len(seq_data) == config.sequence_length:
+                    seq = torch.FloatTensor(seq_data).unsqueeze(0)
+                    pred = model(seq)
+                    predicted_values_normalized.append(pred.item())
+                    valid_timestamps.append(X_train['ID'].iloc[i])
+        
+        # Inverse transform all values
         true_values_original = y_scaler.inverse_transform(true_values_normalized.reshape(-1, 1)).flatten()
-        predicted_value_original = y_scaler.inverse_transform([[predicted_value_normalized]])[0][0]
+        predicted_values_original = y_scaler.inverse_transform(np.array(predicted_values_normalized).reshape(-1, 1)).flatten()
         
-        # Log historical values
-        '''logger.info("\nHistorical values (Original Scale):")
-        for idx, (ts, val) in enumerate(zip(timestamps[:-1], true_values_original[:-1])):
-            logger.info(f"Index: {history_start + idx}, Timestamp: {ts}, Value: {val:.2f}")'''
-        logger.info("\nHistorical values (Original Scale):")
-        historical_indices = y_train.index[history_start:target_idx + 1]
-        for idx, (ts, val) in enumerate(zip(timestamps[:-1], true_values_original[:-1])):
-            logger.info(f"Index: {historical_indices[idx]}, Timestamp: {ts}, Value: {val:.2f}")
+        # Print comparison for the points we have predictions for
+        logger.info("\nValues Comparison:")
+        for ts, actual, pred in zip(valid_timestamps, true_values_original[-len(predicted_values_original):], predicted_values_original):
+            logger.info(f"Timestamp: {ts}")
+            logger.info(f"Actual: {actual:.2f}")
+            logger.info(f"Predicted: {pred:.2f}")
+            logger.info(f"Difference: {abs(pred - actual):.2f}\n")
         
-        target_true_original = true_values_original[-1]
+        # Calculate final metrics
+        final_true = true_values_original[-1]
+        final_pred = predicted_values_original[-1]
+        abs_error = abs(final_pred - final_true)
+        rel_error = (abs_error / final_true) * 100
         
-        # Log prediction results
-        logger.info(f"\nTarget timestamp: {timestamps.iloc[-1]}")
-        logger.info(f"Target index: {target_idx}")
-        logger.info(f"Actual value (Original scale): {target_true_original:.4f}")
-        logger.info(f"Predicted value (Original scale): {predicted_value_original:.4f}")
-        
-        # Calculate metrics
-        abs_error = abs(predicted_value_original - target_true_original)
-        rel_error = (abs_error / target_true_original) * 100
-        
-        logger.info("\nPrediction Metrics (Original Scale):")
+        logger.info("\nFinal Prediction Metrics:")
         logger.info(f"Absolute error: {abs_error:.4f}")
         logger.info(f"Relative error: {rel_error:.2f}%")
         
         if len(true_values_original) > 1:
             prev_true = true_values_original[-2]
-            direction_match = ((predicted_value_original > target_true_original) == 
-                             (target_true_original > prev_true))
+            direction_match = ((final_pred > final_true) == (final_true > prev_true))
             logger.info(f"Direction Match: {'✓' if direction_match else '✗'}")
         
-        # Create visualization
+
+        # -------------------------------------------------------------------
+        # First plot (detailed view)
         target_time = pd.to_datetime(timestamps.iloc[-1]).strftime('%Y%m%d_%H%M')
         
-        plt.figure(figsize=(10, 6))
-        plt.plot(timestamps[:-1], true_values_original[:-1], 'b-o', 
-                label='Historical Values')
-        plt.plot(timestamps.iloc[-1], true_values_original[-1], 'go',
-                label='Actual Value')
-        plt.plot(timestamps.iloc[-1], predicted_value_original, 'ro',
-                label='Predicted Value')
-        plt.title('Historical Values and Prediction (Original Scale)')
+        plt.figure(figsize=(12, 8))
+        # Plot actual values in green (continuous line)
+        plt.plot(timestamps, true_values_original, 'g-o', 
+                label='Actual Values', linewidth=2)
+        # Plot predicted values in red (continuous line)
+        plt.plot(valid_timestamps, predicted_values_original, 'r-o',
+                label='Predicted Values', linewidth=2)
+        
+        plt.title('Actual vs Predicted Values (Original Scale)')
         plt.xlabel('Time')
         plt.ylabel('TARGET Values')
         plt.xticks(rotation=45)
         plt.legend()
         plt.grid(True)
-        
-        # Save plot
         plt.tight_layout()
+        
+              
+        # Save first plot
         plot_path = model_dir / f'prediction_{target_time}.png'
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
+        # -------------------------------------------------------------------
         
-        return predicted_value_original, target_true_original
+        # Second plot (all datapoints)
+        plt.figure(figsize=(15, 8))
+        
+        # Get all actual values
+        all_true_values = y_train[target_name].values
+        all_true_original = y_scaler.inverse_transform(all_true_values.reshape(-1, 1)).flatten()
+        
+        # Calculate predictions for all possible points
+        all_predictions = []
+        valid_timestamps = []
+        
+        for i in range(config.sequence_length, len(X_train)):
+            seq_data = X_train.iloc[i-config.sequence_length:i].select_dtypes(include=['float64']).values
+            seq = torch.FloatTensor(seq_data).unsqueeze(0)
+            pred = model(seq)
+            all_predictions.append(pred.item())
+            valid_timestamps.append(X_train['ID'].iloc[i])
+            
+        all_predictions_original = y_scaler.inverse_transform(np.array(all_predictions).reshape(-1, 1)).flatten()
+        
+        # Plot all datac
+        step = 100
+        plt.plot(X_train['ID'][config.sequence_length::step], 
+            all_true_original[config.sequence_length::step], 
+            'g-', label='Actual Values (sampled)', linewidth=0.6)
 
+        plt.plot(valid_timestamps[::step], 
+            all_predictions_original[::step], 
+            'r-', label='Predicted Values (sampled)', linewidth=0.4)
+        
+        plt.title('All Data: Actual vs Predicted Values')
+        plt.xlabel('Time')
+        plt.ylabel('TARGET Values')
+        plt.xticks(rotation=45)
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        
+        # Save second plot
+        plot_path_all = model_dir / f'prediction_all_data_{target_time}.png'
+        plt.savefig(plot_path_all, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        return predicted_values_original[-1], true_values_original[-1]
 # ============================================================================================
 
+
+
+# ============================================================================================
 class DatasetType(Enum):
     ESO = 0
     GER = 1
-
 # ============================================================================================
 
+
+
+# ============================================================================================
 def train(dataset_type, config):
     # -----------------------------------------------------------------
     torch.set_num_threads(config.num_threads)
@@ -691,13 +864,12 @@ def train(dataset_type, config):
         raise
 
 config = ModelConfig()
-'''dataset_type = DatasetType.ESO
-model, metrics, predicted_value, last_true_value = train(dataset_type, config)'''
+logger.info('EVALUATE SAVED MODEL WITH NEW DATA')
+# ============================================================================================
+
+
 
 # ============================================================================================
-# EVALUATE SAVED MODEL WITH NEW DATA
-logger.info('EVALUATE SAVED MODEL WITH NEW DATA')
-
 def evaluate_model(dataset_type: DatasetType, timestamp: str):
     
     model_dir = Path(__file__).resolve().parent.parent / 'data' / 'models' / dataset_type.name.lower() / f'model_{timestamp}'
@@ -810,12 +982,12 @@ if timestamp == None:
 else: 
     logger.info('EVALUATE RESULTS')
     results = evaluate_model(DatasetType.GER, "20241201_1110") 
-    
 # ============================================================================================
 
 
+
 # ============================================================================================
-# USER INTERACTION
+## USER INTERACTION
 logger.info('START USER INTERACTION')
 
 def get_user_choice():
@@ -832,6 +1004,8 @@ def get_user_choice():
         else:
             print("Invalid choice. Please enter 1, 2, or 3.")
 
+# --------------------------------------------------------------------------------------------------------------------------------
+
 def get_dataset_choice():
     '''Choose dataset'''
     while True:
@@ -847,6 +1021,8 @@ def get_dataset_choice():
         else:
             print("Invalid choice. Please enter 1 or 2.")
 
+# --------------------------------------------------------------------------------------------------------------------------------
+
 def get_timestamp():
     '''Choose timestamp'''
     while True:
@@ -855,6 +1031,8 @@ def get_timestamp():
             return timestamp
         else:
             print("Invalid timestamp format. Please use YYYYMMDD_HHMM (e.g., 20241201_1430)")
+
+# --------------------------------------------------------------------------------------------------------------------------------
 
 # Main interaction loop
 while True:
@@ -885,7 +1063,8 @@ while True:
         for metric, value in results['metrics'].items():
             print(f"{metric}: {value:.4f}")
 
-# ============================================================================================
+# --------------------------------------------------------------------------------------------------------------------------------
 
 # END PROJECT
 logger.info('END PROJECT')
+# ============================================================================================================================

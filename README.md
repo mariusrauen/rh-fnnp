@@ -1,21 +1,30 @@
 # **RENDER: ctrl+shift+V**
 
+**Content:** <br>
+INTRODUCTION <br>
+INSTRUCTION  <br>
+DATAPREP  <br>
+NOTE <br>
+VISMODCOM  <br>
+TIME
+
 # **INTRODUCTION** 
 Original Author: marius.rauen@rfh-campus.de
 
-#### Render with Ctrl + Shift + V
-
-This README contains information regarding the project structure and the processed data (Introduction), and the software exectuion (Instruction).
-For this Data Science task, the Hadley-Wickham method is used to investigate the data provided by the 'Electricity System Operator' (ESO) and by 'Strom- und Gasmarktdaten' (SMARD) of the German 'Bundesnetzagentur. The SMARD dataset is abbrevated with 'GER'. The method steps of Hadley-Wickham are shown in the image below.
+Content Introduction: Project structre and processed data.<br>
+Content Instruction: Software execution <br>
+Used analysis workflow: Hadley-Wickham method 
 
 #### AIM:
-The aim of the project is to predict one author defined feature of the dataset. For this project work, this feature is overall demand of the United Kingdom, Germany respectively with the label 'OVERALL'. 
+The aim of the project is to predict one author defined feature of the dataset. For this project work, this feature is overall demand of the United Kingdom, Germany respectively with the label 'TARGET'. <br>
+For the ESO data, this corresponds to the feature 'ENGLAND_WALES_DEMAND'. <br>
+For the GER data, this corresponds to the feature 'Stromverbrauch_Gesamt (Netzlast) [MWh]'.
 
-TODO: check target_idx and original idx
-TODO: visualize histogram
-TODO: transfer learning
 
-Sources of the raw data (2024/09/28):
+#### Sources of the raw data (2024/09/28):
+'Electricity System Operator' (ESO) for data of the United Kindgom.<br>
+'Strom- und Gasmarktdaten' (SMARD) for of German (GER) 'Bundesnetzagentur. 
+
 | Name                                                      | Source                                                                                    | 
 |-----------------------------------------------------------|-------------------------------------------------------------------------------------------|  
 | **National Energy System Operator (ESO) (UK)**            | https://www.neso.energy/                                                                  |                                           
@@ -34,38 +43,29 @@ Sources of the raw data (2024/09/28):
 | Kosten                                                    | Link -> Oberkategorie: Systemstabilitaet                                                  |
 | Minutenreserve                                            | Link -> Oberkategorie: Systemstabilitaet                                                  |
 | Primaerregelreserve                                       | Link -> Oberkategorie: Systemstabilitaet                                                  |
-| Sekundaerregelreserve                                     | Link -> Oberkategorie: Systemstabilitaet                                                 \ |
+| Sekundaerregelreserve                                     | Link -> Oberkategorie: Systemstabilitaet                                                  |
 
 
 ![Hadley-Wickham-method](./data/figures/Hadley-Wickham-method.png)
 
 
 # **INSTRUCTION**
-> **Get project from https://github.com/mariusrauen/rh-fnnp and connect Docker container.**
+> **Get project from https://github.com/mariusrauen/rh-fnnp and connect Docker container. <br> Get raw data and implement in data initialized data directory of the project. <br> Run DataPrep.py to generate the data for the steps Visualise, Model and Communicate. <br> After that, execute VisModCom.py to Visualise, Model and Communicate.**
 
-> **Get raw data and implement in data initialized data directory of the project**
+# **DATAPREP**
+#### Methods of classMetaData.py:
+    - get_configs
+    - setup_logger
 
-> **Run DataPrep.py to generate the data for the steps Visualise, Model and Communicate.**
-
-> **After that, execute VisModCom.py to Visualise, Model and Communicate.**
-
-# classImporter.py
-Contains the **Importer*** class to import data from national grid 'Electricity System Operator' (ESO) of Great Britain (GB) and from 'Bundesnetzagentur' in Germany.
-#### Methods:
+#### Methods of classImporter.py:
     - combine_eso
     - combine_smard
 
-# classTidy.py
-Contains the **Tidy** class for an initial data structuring by printing information of the raw data and standardizing the time stamps for further processing
-#### Methods:
+#### Methods of classTidy.py:
     - df_info
     - standardize_time
 
-
-
-# classTransformer.py
-Contains the **Transformer** class and its methods to transform the read in raw data into a format that is suitable for a regression task. 
-#### Methods:
+#### Methods of classTransformer.py:
     - manipulate_esolog
     - manipulate_smardlog
     - set_time_span
@@ -74,9 +74,9 @@ Contains the **Transformer** class and its methods to transform the read in raw 
     - prepare_for_regression
     - merge_dataframes
 
-# DataPerp.py
-Contains a **DataProcessor** class combining the code of Import, Tidy and Transformer to provide prepare data for the tasks in the subsequent steps of the Hadley-Wickham method.
-#### Methods:
+## DataPerp.py
+Contains the DataProcessor class that ties the MetaData, Importer, Tidy, Transformer together.
+
     - __post_init__
     - process_eso_data
     - process_smard_data
@@ -84,32 +84,35 @@ Contains a **DataProcessor** class combining the code of Import, Tidy and Transf
     - save_dataframes_to_csv
     - main
 
-![Hadley-Wickham-method](./data/figures/feature_table.jpg)
+![Flow chart DataPrep](./data/figures/FlussdiagrammDataPrep.jpg)
+
 
 # **NOTE**
-> **Up this point, the project steps Import, Tidy and Transform are processed with python scripts (.py). Further model steps Visualization, Modelling and Communication are handled in VisModCom.py. Information related to the used and processed datasets are saved to the directory that is named 'processed'. Information and results regarding the models are saved to the directory that is named 'models'.**
- 
-![Hadley-Wickham-method](./data/figures/modeling_process.png)
+> **Up this point, the project steps Import, Tidy and Transform are treated in 'DataPrep.py'. <br> Further model steps Visualization, Modeling and Communication are handled in 'VisModCom.py'. <br> Information related to the used and processed datasets are saved to the directory that is named 'processed'. <br> Information and results regarding the models are saved to the directory that is named 'models'.**
+  
+# **VISMODCOM**
+#### Visualization
 
-# VisModCom.py
-This file contains the steps for Visualization, Modeling and Communication. 
+#### Modeler
+For modeling, the pytorch library is used: <br>
+https://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html <br>
+https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html  <br>
+![Modeling process](./data/figures/modeling_process.png)
 
-## Visualization
-In this project step, the prepared data are inspected.
+#### Communicator
 
-## Modeler
-Build a ML regression and a LSTM.
+## VisModCom.py
+This file contains the steps for Visualization, Modeling and Communication.
 
-## Communicator
 
-The Communicator is a framework to present insights in an effective and clear way. It reports and visualizes the output of a data science project.
+
 
 # **TIME**
 Target: 6CP = 6 x 25h = 150h
 
 Lecture: CW37 (2024/09/09) until CW52 (2024/12/23) = 16 weeks with 3h/week = 48h - 6h (canceled lectures) = 42h
 
-Project:
+Project: 128h + 42h = 170h 
 
 | Date       | CW        | Start      | End        | Break      | h [day]   | h [sum]   | Comment                            | 
 |------------|-----------|------------|------------|------------|-----------|-----------|------------------------------------|                  
@@ -136,7 +139,8 @@ Project:
 | 2024/11/29 | 48        | 08:00      | 10:00      | 00:00      | 02:00     | 103:00     | LSTM model                        |
 | 2024/11/30 | 48        | 09:00      | 19:30      | 01:30      | 09:00     | 112:00     | Toss .ipynb, troubleshooting      |
 | 2024/12/01 | 48        | 10:00      | 16:30      | 01:30      | 05:00     | 117:00     | LSTM model, clean environment     |
-| 2024/12/02 | 49        | 00:00      | 00:00      | 00:00      | 00:00     | XXX:00     | 
-| 2024/12/XX | XX        | 00:00      | 00:00      | 00:00      | 00:00     | XXX:00     | 
-| 2024/12/XX | XX        | 00:00      | 00:00      | 00:00      | 00:00     | XXX:00     | 
+| 2024/12/19 | 51        | 10:00      | 11:00      | 00:00      | 01:00     | 118:00     | LSTM model                        |
+| 2024/12/23 | 52        | 17:00      | 21:00      | 00:00      | 04:00     | 122:00     | Markdown                          |
+| 2024/12/24 | 52        | 10:00      | 16:00      | 00:00      | 06:00     | 128:00     | Clean code, Presentation          |
+| 2024/12/27 | 52        | 14:00      | 18:00      | 00:00      | 04:00     | 132:00     | Presentation                      |
 | **End of Project**                                                                                                         |

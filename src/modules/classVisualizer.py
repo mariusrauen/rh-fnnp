@@ -15,19 +15,11 @@ class Visualizer:
     df_ger: pd.DataFrame
 
     def __post_init__(self):
-        """# Define the full path
-        self.plot_dir = Path('/workspace/data/processed/Plots')
-        # Create each directory in the path explicitly
-        Path('/workspace/data').mkdir(exist_ok=True)
-        Path('/workspace/data/processed').mkdir(exist_ok=True)
-        Path('/workspace/data/processed/Plots').mkdir(exist_ok=True)
-        print(f"Created directory structure at: {self.plot_dir}")"""
-
+        
         # Define the full path
         self.plot_dir = Path(__file__).resolve().parent.parent / '..' /'data' / 'processed' / 'plots'
         self.plot_dir.mkdir(parents=True, exist_ok=True)
         
-
         #Carbon Intensity gCO2/kWh
         self.carbon_intensity = {
             'GAS': self.df_eso['GAS'],

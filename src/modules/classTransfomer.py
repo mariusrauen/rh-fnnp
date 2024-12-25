@@ -254,81 +254,6 @@ class Transformer:
         
         return aligned_dict
     
-    """
-    @staticmethod
-    def align_dataframes(df_dict: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
-        ''''
-        Aligns multiple dataframes by their ID column, filling missing rows with median values.
-        Each DataFrame must have an 'ID' column with datetime values in the format 'YYYY-MM-DD HH:MM:SS'.
-        
-        Parameters:
-        df_dict (Dict[str, pd.DataFrame]): Dictionary of DataFrames with 'ID' column
-        
-        Returns:
-        Dict[str, pd.DataFrame]: Dictionary of aligned DataFrames with identical IDs
-        '''
-        # Convert all ID columns to datetime if they aren't already
-        for name, df in df_dict.items():
-            if df[ID].dtype != 'datetime64[ns]':
-                df[ID] = pd.to_datetime(df[ID])
-            # Remove any duplicates in ID column
-            if df['ID'].duplicated().any():
-                logging.warning(f'Found {df[ID].duplicated().sum()} duplicate IDs in {name}')
-                df = df.drop_duplicates(subset=[ID], keep='first')
-                df_dict[name] = df
-        
-        # Get set of IDs from each DataFrame and log the sizes
-        id_sets = {}
-        for name, df in df_dict.items():
-            id_sets[name] = set(df[ID])
-            logging.info(f'{name} has {len(id_sets[name])} unique IDs')
-        
-        # Get the union of all IDs from each DataFrame
-        all_ids = set().union(*id_sets.values())
-        logging.info(f'Found {len(all_ids)} unique IDs across all DataFrames')
-        
-        # Create a sorted list of all IDs for consistent ordering
-        all_ids_sorted = sorted(list(all_ids))
-        
-        # Align each DataFrame to include all IDs, filling missing rows with median values
-        aligned_dict = {}
-        for name, df in df_dict.items():
-            # Create a new DataFrame with all IDs and fill missing rows with NaN
-            aligned_df = pd.DataFrame({ID: all_ids_sorted})
-            aligned_df = aligned_df.merge(df, on=ID, how='left')
-            
-            # Fill missing values in each column with the column's median (excluding ID column)
-            for col in aligned_df.columns:
-                if col != ID:
-                    aligned_df[col] = aligned_df[col].fillna(aligned_df[col].median())
-            
-            # Sort by ID to ensure consistent order
-            aligned_df = aligned_df.sort_values('ID').reset_index(drop=True)
-            
-            # Convert ID back to string format for consistency
-            aligned_df[ID] = aligned_df[ID].dt.strftime('%Y-%m-%d %H:%M:%S')
-            
-            # Store in new dictionary
-            aligned_dict[name] = aligned_df
-            
-            # Log the changes
-            logging.info(f'Aligned DataFrame {name}: Original shape {df.shape} -> New shape {aligned_df.shape}')
-        
-        # Verify all DataFrames have the same size and IDs
-        sizes = {name: len(df) for name, df in aligned_dict.items()}
-        if len(set(sizes.values())) > 1:
-            raise ValueError(f'Error: DataFrames have different sizes after alignment: {sizes}')
-        else:
-            logging.info(f'All DataFrames successfully aligned to {next(iter(sizes.values()))} rows')
-            
-            # Final verification of ID consistency
-            first_df_ids = set(aligned_dict[next(iter(aligned_dict))][ID])
-            for name, df in aligned_dict.items():
-                if set(df[ID]) != first_df_ids:
-                    raise ValueError(f'ID mismatch found in {name} after alignment')
-        
-        return aligned_dict
-    """
         
     def prepare_for_regression(self, df_dict: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
         '''
@@ -396,7 +321,7 @@ class Transformer:
         logging.info('Data preparation completed')
         return processed_dict
 
-    @staticmethod
+    """@staticmethod
     def normalize(df_dict: Dict[str, pd.DataFrame], feature_range=(0, 1)) -> Dict[str, pd.DataFrame]:
         '''
         Normalizes columns within each dataframe independently using Min-Max scaling.
@@ -434,7 +359,7 @@ class Transformer:
             
             normalized_dict[key] = df_normalized
         
-        return normalized_dict
+        return normalized_dict"""
     
 
     @staticmethod
