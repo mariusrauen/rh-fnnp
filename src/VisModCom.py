@@ -261,11 +261,11 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 # -------------------------------------------------------------------------------------------------------------------------------- 
 
 # Make small dataset for testing
-'''size = 400
+size = 400
 X_train_eso = X_train_eso.iloc[:size]; X_train_ger = X_train_ger.iloc[:size]
 y_train_eso = y_train_eso.iloc[:size]; y_train_ger = y_train_ger.iloc[:size]
 X_eval_eso = X_eval_eso.iloc[:size]; X_eval_ger = X_eval_ger.iloc[:size]
-y_eval_eso = y_eval_eso.iloc[:size]; y_eval_ger = y_eval_ger.iloc[:size]'''
+y_eval_eso = y_eval_eso.iloc[:size]; y_eval_ger = y_eval_ger.iloc[:size]
 # ============================================================================================================================
 
 
