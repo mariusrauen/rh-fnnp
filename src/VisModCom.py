@@ -276,19 +276,19 @@ class ModelConfig: # Configuration class for the model
         self.sequence_length = 48           # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
         self.val_split = 0.25               # Split for modelling
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.hidden_size = 192              # Neurons in LSTM for each hidden layer
+        self.hidden_size = 176              # Neurons in LSTM for each hidden layer
         self.num_layers = 3                 # Number of hidden layers
-        self.batch_size = 48                # Number of sequences processed together in one iteration
+        self.batch_size = 56                # Number of sequences processed together in one iteration
                                             # Each sequence has length sequence_length (e.g. 48)
                                             # Total batches = dataset_size / batch_size
                                             # e.g. (datapoints=100000) / (batch_size=32) = 3125 batches
-        self.learning_rate = 0.001
+        self.learning_rate = 0.0012          # Learning rate for the optimizer
         self.epochs = 24                    # One complete pass of all data to train
-        #self.dropout = 0.1                  # TODO REMOVE DROPOUT FOR FINAL MODEL for regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
-        self.patience = 16
+        self.dropout = 0.12                  # TODO REMOVE DROPOUT FOR FINAL MODEL for regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
+        self.patience = 12                   # Number of epochs to wait for improvement before early stopping
         self.grad_clip = 0.8         
         self.scheduler_factor = 0.6         # Learning rate decay factor
-        self.scheduler_patience = 10        # Learning rate decay patience
+        self.scheduler_patience = 8         # Learning rate decay patience
         self.output_size = 1
         self.num_threads = 6
                                             # residual connections?
@@ -300,6 +300,7 @@ class ModelConfig: # Configuration class for the model
 # ============================================================================================
 class TimeSeriesDataset(Dataset): 
     def __init__(self, X, y, config):
+                
         self.X = torch.FloatTensor(X.select_dtypes(include=['float64']).values) # Create a tensor from X data, only float64 values
         self.y = torch.FloatTensor(y[target_name].values) # Create a tensor from y data, only target_name values 
         self.sequence_length = config.sequence_length # Set the sequence length
@@ -310,46 +311,6 @@ class TimeSeriesDataset(Dataset):
     def __getitem__(self, idx):
         return (self.X[idx:idx + self.sequence_length],
                 self.y[idx + self.sequence_length])
-# ============================================================================================
-
-
-
-# ============================================================================================
-class LSTMCellWithBN(nn.Module):
-    def __init__(self, input_size, hidden_size):
-        super(LSTMCellWithBN, self).__init__()
-        
-        # Combined linear transformation for all gates
-        self.gates = nn.Linear(input_size + hidden_size, 4 * hidden_size)
-        self.hidden_size = hidden_size
-        
-        # Batch normalization layers - one for each gate type before activation
-        self.bn_ingate = nn.BatchNorm1d(hidden_size)
-        self.bn_forgetgate = nn.BatchNorm1d(hidden_size)
-        self.bn_cellgate = nn.BatchNorm1d(hidden_size)
-        self.bn_outgate = nn.BatchNorm1d(hidden_size)
-
-    # ----------------------------------------------------------------------------------------
-
-    def forward(self, x, hidden):
-        hx, cx = hidden
-        
-        # Concatenate input and hidden state
-        gates = self.gates(torch.cat((x, hx), dim=1))
-        
-        # Split gates
-        chunks = gates.chunk(4, dim=1)
-        
-        # Apply batch norm before each activation function
-        ingate = torch.sigmoid(self.bn_ingate(chunks[0]))
-        forgetgate = torch.sigmoid(self.bn_forgetgate(chunks[1]))
-        cellgate = torch.tanh(self.bn_cellgate(chunks[2]))
-        outgate = torch.sigmoid(self.bn_outgate(chunks[3]))
-        
-        cy = (forgetgate * cx) + (ingate * cellgate)
-        hy = outgate * torch.tanh(cy)
-        
-        return hy, cy
 # ============================================================================================
 
 
@@ -381,6 +342,46 @@ class LSTMWithBN(nn.Module):
 
 
 # ============================================================================================
+class LSTMCellWithBN(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(LSTMCellWithBN, self).__init__()
+        
+        # Combined linear transformation for all gates
+        self.gates = nn.Linear(input_size + hidden_size, 4 * hidden_size)
+        self.hidden_size = hidden_size
+        
+        # Batch normalization layers - one for each gate type before activation
+        self.bn_ingate = nn.BatchNorm1d(hidden_size)
+        self.bn_forgetgate = nn.BatchNorm1d(hidden_size)
+        self.bn_cellgate = nn.BatchNorm1d(hidden_size)
+        self.bn_outgate = nn.BatchNorm1d(hidden_size)
+
+    # ----------------------------------------------------------------------------------------
+
+    def forward(self, x, hidden):
+        hx, cx = hidden
+        
+        # Concatenate input and hidden state
+        gates = self.gates(torch.cat((x, hx), dim=1))
+        
+        # Split gates,  each gate has hidden_size neurons and batch_size 
+        chunks = gates.chunk(4, dim=1)
+        
+        # Apply batch norm before each activation function
+        ingate = torch.sigmoid(self.bn_ingate(chunks[0]))
+        forgetgate = torch.sigmoid(self.bn_forgetgate(chunks[1]))
+        cellgate = torch.tanh(self.bn_cellgate(chunks[2]))
+        outgate = torch.sigmoid(self.bn_outgate(chunks[3]))
+        
+        cy = (forgetgate * cx) + (ingate * cellgate)
+        hy = outgate * torch.tanh(cy)
+        
+        return hy, cy
+# ============================================================================================
+
+
+
+# ============================================================================================
 class LSTMPredictor(nn.Module):
     def __init__(self, input_size, config):
         super(LSTMPredictor, self).__init__()
@@ -396,7 +397,7 @@ class LSTMPredictor(nn.Module):
             self.lstm_layers.append(LSTMWithBN(config.hidden_size, config.hidden_size))
         
         # Output layers
-        #self.dropout = nn.Dropout(config.dropout)       # TODO REMOVE DROPOUT FOR FINAL MODEL
+        self.dropout = nn.Dropout(config.dropout)       # TODO REMOVE DROPOUT FOR FINAL MODEL
         self.linear = nn.Linear(config.hidden_size, config.output_size)
     
     # ----------------------------------------------------------------------------------------
@@ -410,7 +411,7 @@ class LSTMPredictor(nn.Module):
         x = x[:, -1, :]
         
         # Apply dropout and linear layer
-        #x = self.dropout(x)                             # TODO REMOVE DROPOUT FOR FINAL MODEL
+        x = self.dropout(x)                             # TODO REMOVE DROPOUT FOR FINAL MODEL
         predictions = self.linear(x) 
         
         return predictions
@@ -683,11 +684,14 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
     
     logger.info(f"Sequence shape before processing: {sequence_data.shape}")
     
+    logger.info(f"\nX_train head: {X_train['ID'].head()}")
+    logger.info(f"\ny_train tail: {y_train['ID'].tail()}")
+
     # Make predictions
     model.eval()
     with torch.no_grad():
         # Get historical values for visualization
-        history_start = max(0, target_idx - 5)
+        history_start = max(0, target_idx - 10)
         true_values_normalized = y_train[target_name].iloc[history_start:target_idx + 1].values
         timestamps = X_train['ID'].iloc[history_start:target_idx + 1]
         
@@ -704,6 +708,8 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
                     pred = model(seq)
                     predicted_values_normalized.append(pred.item())
                     valid_timestamps.append(X_train['ID'].iloc[i])
+
+
         
         # Inverse transform all values
         true_values_original = y_scaler.inverse_transform(true_values_normalized.reshape(-1, 1)).flatten()
@@ -736,7 +742,7 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
         # -------------------------------------------------------------------
         # First plot (detailed view)
         target_time = pd.to_datetime(timestamps.iloc[-1]).strftime('%Y%m%d_%H%M')
-        
+    
         plt.figure(figsize=(12, 8))
         # Plot actual values in green (continuous line)
         plt.plot(timestamps, true_values_original, 'g-o', 
@@ -745,17 +751,16 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
         plt.plot(valid_timestamps, predicted_values_original, 'r-o',
                 label='Predicted Values', linewidth=2)
         
-        plt.title('Actual vs Predicted Values (Original Scale)')
+        plt.title('Model: Actual vs Predicted Values (Detail Last Points)')
         plt.xlabel('Time')
         plt.ylabel('TARGET Values')
         plt.xticks(rotation=45)
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        
-              
+                      
         # Save first plot
-        plot_path = model_dir / f'prediction_{target_time}.png'
+        plot_path = model_dir / f'prediction_detail{target_time}.png'
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
         # -------------------------------------------------------------------
@@ -781,16 +786,16 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
         all_predictions_original = y_scaler.inverse_transform(np.array(all_predictions).reshape(-1, 1)).flatten()
         
         # Plot all datac
-        step = 100
+        step = 200
         plt.plot(X_train['ID'][config.sequence_length::step], 
             all_true_original[config.sequence_length::step], 
             'g-', label='Actual Values (sampled)', linewidth=0.6)
 
         plt.plot(valid_timestamps[::step], 
             all_predictions_original[::step], 
-            'r-', label='Predicted Values (sampled)', linewidth=0.4)
+            'r-', label='Predicted Values (sampled)', linewidth=0.6)
         
-        plt.title('All Data: Actual vs Predicted Values')
+        plt.title('Model: Actual vs Predicted Values')
         plt.xlabel('Time')
         plt.ylabel('TARGET Values')
         plt.xticks(rotation=45)
@@ -871,15 +876,13 @@ logger.info('EVALUATE SAVED MODEL WITH NEW DATA')
 
 # ============================================================================================
 def evaluate_model(dataset_type: DatasetType, timestamp: str):
-    
     model_dir = Path(__file__).resolve().parent.parent / 'data' / 'models' / dataset_type.name.lower() / f'model_{timestamp}'
-
-    # Setup logger
-    logger = setup_logger(model_dir=model_dir)
-    logger.info(f"Starting evaluation for {dataset_type.name} model from {timestamp}")
+    logger = setup_logger(model_dir=model_dir, mode='a')
+    logger.info('\n' + '='*80)
+    logger.info(f"Starting new evaluation for {dataset_type.name} model from {timestamp}")
 
     try:
-        # Select appropriate dataset and scaler based on type
+        # Select appropriate dataset and scaler
         if dataset_type == DatasetType.ESO:
             X_eval, y_eval = X_eval_eso, y_eval_eso
             y_scaler = yeso_scaler
@@ -889,80 +892,150 @@ def evaluate_model(dataset_type: DatasetType, timestamp: str):
         else:
             raise ValueError(f"Invalid dataset type: {dataset_type}")
 
-        config = ModelConfig()  
+        # Sort the evaluation data by timestamp
+        X_eval = X_eval.sort_values('ID').copy()
+        y_eval = y_eval.loc[X_eval.index].copy()
 
-        # Load saved model
+        logger.info(f"X_eval head: {X_eval['ID'].head()}")
+        logger.info(f"X_eval tail: {X_eval['ID'].tail()}")
+        logger.info(f"y_eval head: {y_eval['ID'].head()}")
+        logger.info(f"y_eval tail: {y_eval['ID'].tail()}")
+
+        config = ModelConfig()
         input_size = X_eval.select_dtypes(include=['float64']).shape[1]
         model = LSTMPredictor(input_size, config)
         model.load_state_dict(torch.load(model_dir / 'model.pth', weights_only=True))
         model.eval()
-    
-        # Create dataset and dataloader
+
+        # Create dataset and dataloader with sorted data
         eval_dataset = TimeSeriesDataset(X_eval, y_eval, config)
         eval_loader = DataLoader(eval_dataset, batch_size=config.batch_size, shuffle=False)
-    
+
         # Initialize lists for predictions and true values
         all_predictions = []
         all_true_values = []
+        timestamps = []
         eval_loss = 0
         criterion = nn.MSELoss()
-    
-        with torch.no_grad():           
-            for X_batch, y_batch in tqdm(eval_loader, desc='Evaluating'):
+
+        with torch.no_grad():
+            for batch_idx, (X_batch, y_batch) in enumerate(tqdm(eval_loader, desc='Evaluating batches (total_samples/batch_size)')):
                 y_pred = model(X_batch)
                 loss = criterion(y_pred, y_batch.unsqueeze(1))
                 eval_loss += loss.item()
                 
-                # Store predictions and true values
+                # Get corresponding timestamps for this batch
+                start_idx = batch_idx * config.batch_size + config.sequence_length
+                end_idx = start_idx + len(y_batch)
+                batch_timestamps = X_eval['ID'].iloc[start_idx:end_idx]
+                
                 all_predictions.extend(y_pred.numpy().flatten())
                 all_true_values.extend(y_batch.numpy().flatten())
-    
-        avg_eval_loss = eval_loss / len(eval_loader)
-        eval_metrics = calculate_metrics(all_true_values, all_predictions)
-    
-        # Log results
-        logger.info(f"\nAverage evaluation loss: {avg_eval_loss:.4f}")
-        logger.info("\nEvaluation Metrics:")
+                timestamps.extend(batch_timestamps)
 
-        for metric, value in eval_metrics.items():
-            logger.info(f"{metric}: {value:.4f}")
-    
+        avg_eval_loss = eval_loss / len(eval_loader)
+
         # Convert predictions back to original scale
         predictions_original = y_scaler.inverse_transform(
             np.array(all_predictions).reshape(-1, 1)
         ).flatten()
+        
         true_values_original = y_scaler.inverse_transform(
             np.array(all_true_values).reshape(-1, 1)
         ).flatten()
-    
-        # Create visualization
-        plt.figure(figsize=(15, 7))
-        time_steps = range(len(predictions_original))
+
+        # Create DataFrame with results
+        results_df = pd.DataFrame({
+            'timestamp': timestamps,
+            'true_values': true_values_original,
+            'predictions': predictions_original
+        }).sort_values('timestamp')
+
+        # Calculate metrics
+        eval_metrics = calculate_metrics(results_df['true_values'], results_df['predictions'])
         
-        plt.plot(time_steps, true_values_original, 'b-', label='True Values', alpha=0.7)
-        plt.plot(time_steps, predictions_original, 'r-', label='Predictions', alpha=0.7)
+
+        logger.info(f"\nEvaluation performed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"Average evaluation loss: {avg_eval_loss:.4f}")
+        logger.info("\nEvaluation Metrics:")
+        for metric, value in eval_metrics.items():
+            logger.info(f"{metric}: {value:.4f}")
+
+        logger.info("\nSample Values Comparison:")
+        last_points = results_df.tail(6)
+        for _, row in last_points.iterrows():
+            logger.info(f"Timestamp: {row['timestamp']}")
+            logger.info(f"Actual: {row['true_values']:.2f}")
+            logger.info(f"Predicted: {row['predictions']:.2f}")
+            logger.info(f"Difference: {abs(row['predictions'] - row['true_values']):.2f}\n")
+
+        # Calculate and log final prediction metrics
+        last_row = results_df.iloc[-1]
+        abs_error = abs(last_row['predictions'] - last_row['true_values'])
+        rel_error = (abs_error / last_row['true_values']) * 100
         
-        plt.title('Model Predictions vs True Values (Original Scale)')
-        plt.xlabel('Time Steps')
+        logger.info("\nFinal Prediction Metrics:")
+        logger.info(f"Absolute error: {abs_error:.4f}")
+        logger.info(f"Relative error: {rel_error:.2f}%")
+        
+        if len(results_df) > 1:
+            second_last_true = results_df.iloc[-2]['true_values']
+            last_true = last_row['true_values']
+            last_pred = last_row['predictions']
+            direction_match = ((last_pred > last_true) == (last_true > second_last_true))
+            logger.info(f"Direction Match: {'✓' if direction_match else '✗'}")
+
+
+        # Create visualizations
+        # Detailed view (last 6 points)
+        plt.figure(figsize=(12, 8))
+        detail_df = results_df.tail(6)
+        formatted_timestamps = [ts.strftime('%d %H:%M') for ts in detail_df['timestamp']]
+        
+        plt.plot(range(len(detail_df)), detail_df['true_values'], 'b-o', 
+                label='Actual Values', linewidth=2)
+        plt.plot(range(len(detail_df)), detail_df['predictions'], 'r-o',
+                label='Predicted Values', linewidth=2)
+        
+        plt.title('Evaluation: Actual vs Predicted Values (Detail Last Points)')
+        plt.xlabel('Time')
+        plt.ylabel('TARGET Values')
+        plt.xticks(range(len(detail_df)), formatted_timestamps, rotation=45)
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+
+        detail_plot_path = model_dir / f'evaluation_results_detail_{datetime.now().strftime("%Y%m%d_%H%M")}.png'
+        plt.savefig(detail_plot_path, dpi=300, bbox_inches='tight')
+        plt.close()
+
+        # Full dataset view
+        plt.figure(figsize=(15, 8))
+        step = max(len(results_df) // 100, 1)  # Sample points for clearer visualization
+        
+        plt.plot(results_df['timestamp'][::step], results_df['true_values'][::step], 'b-', 
+                label='Actual Values', alpha=0.6, linewidth=0.6)
+        plt.plot(results_df['timestamp'][::step], results_df['predictions'][::step], 'r-', 
+                label='Predicted Values', alpha=0.4, linewidth=0.6)
+        
+        plt.title('Evaluation: Actual vs Predicted Values')
+        plt.xlabel('Time')
         plt.ylabel('Target Values')
+        plt.xticks(rotation=45)
         plt.legend()
         plt.grid(True, alpha=0.3)
-    
-        # Save plot
-        eval_plot_path = model_dir / 'evaluation_results.png'
-        plt.savefig(eval_plot_path, dpi=300, bbox_inches='tight')
+        plt.tight_layout()
+
+        full_plot_path = model_dir / f'evaluation_results_{datetime.now().strftime("%Y%m%d_%H%M")}.png'
+        plt.savefig(full_plot_path, dpi=300, bbox_inches='tight')
         plt.close()
-    
+
         # Save detailed results
-        results_path = model_dir / 'evaluation_results.csv'
-        results_df = pd.DataFrame({
-            'True_Values': true_values_original,
-            'Predictions': predictions_original,
-            'Absolute_Error': np.abs(predictions_original - true_values_original)
-        })
+        results_path = model_dir / f'evaluation_results_{datetime.now().strftime("%Y%m%d_%H%M")}.csv'
         results_df.to_csv(results_path, index=False)
         
         logger.info(f"Evaluation results saved to: {model_dir}")
+        logger.info('='*80 + '\n')
         
         return {
             'metrics': eval_metrics,
@@ -973,15 +1046,8 @@ def evaluate_model(dataset_type: DatasetType, timestamp: str):
     
     except Exception as e:
         logger.error(f"Error during evaluation: {str(e)}")
+        logger.info('='*80 + '\n')
         raise
-
-dataset_type = DatasetType.GER
-timestamp = None #"20241201_1110"  
-if timestamp == None:
-    pass
-else: 
-    logger.info('EVALUATE RESULTS')
-    results = evaluate_model(DatasetType.GER, "20241201_1110") 
 # ============================================================================================
 
 

@@ -69,8 +69,18 @@ class DatasetRegistry:
 # ============================================================================================================================
 ## CREATE LOGGER1 
 
-def setup_logger(name='unified_logger', model_dir=None):
-    """Create logger instance with hybrid behavior"""
+def setup_logger(name='unified_logger', model_dir=None, mode='w'):
+    """
+    Create logger instance with hybrid behavior
+    
+    Args:
+        name (str): Name of the logger instance. Defaults to 'unified_logger'
+        model_dir (Path, optional): Directory to save log file. Defaults to None
+        mode (str, optional): File mode ('w' for write, 'a' for append). Defaults to 'w'
+    
+    Returns:
+        logging.Logger: Configured logger instance
+    """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     
@@ -80,7 +90,7 @@ def setup_logger(name='unified_logger', model_dir=None):
     
     if model_dir:
         # File-only logging for training
-        file_handler = logging.FileHandler(model_dir / 'training.log', mode='w')
+        file_handler = logging.FileHandler(model_dir / 'training.log', mode=mode)
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
@@ -92,4 +102,3 @@ def setup_logger(name='unified_logger', model_dir=None):
         logger.addHandler(console_handler)
     
     return logger
-# At the start of your script, create initial logger

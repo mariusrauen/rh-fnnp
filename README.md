@@ -91,28 +91,50 @@ Contains the DataProcessor class that ties the MetaData, Importer, Tidy, Transfo
 > **Up this point, the project steps Import, Tidy and Transform are treated in 'DataPrep.py'. <br> Further model steps Visualization, Modeling and Communication are handled in 'VisModCom.py'. <br> Information related to the used and processed datasets are saved to the directory that is named 'processed'. <br> Information and results regarding the models are saved to the directory that is named 'models'.**
   
 # **VISMODCOM**
-#### Visualization
+#### Functions of Visualization
+    - setup_logger
+    - inspect_data
+    - plot_data
+    - plot_correlation_heatmap
 
-#### Modeler
+
+#### Functions in Modeler section (not in classes)
 For modeling, the pytorch library is used: <br>
 https://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html <br>
 https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html  <br>
-![Modeling process](./data/figures/modeling_process.png)
+<img src="./data/figures/modeling_process.png" width="600" alt="Modeling process">
+ 
+    - normalize
+    - inspect_data
+    - calculate metrics
+    - train_model (core implementation)
+    - predict_and_compare
+    - train (wrapper for setup train_model)
+    - evaluate_model
+    - get_user_choice
+    - def get_dataset_choice
+    - get_timestamp
 
-#### Communicator
+#### Classes of Modeler (Methods within not listed)
+    - ModelConfig
+    - TimeSeriesDataset
+    - LSTMWithBN
+    - LSTMCellWithBN
+    - LSTMPredictor
 
 ## VisModCom.py
 This file contains the steps for Visualization, Modeling and Communication.
 
-
-
+![Flow chart VisModCom](./data/figures/vismodcom1.png)
+![Flow chart VisModCom](./data/figures/vismodcom2.png)
+![Flow chart VisModCom](./data/figures/vismodcom3.png)
 
 # **TIME**
 Target: 6CP = 6 x 25h = 150h
 
 Lecture: CW37 (2024/09/09) until CW52 (2024/12/23) = 16 weeks with 3h/week = 48h - 6h (canceled lectures) = 42h
 
-Project: 128h + 42h = 170h 
+Project: 136h + 42h = 178h 
 
 | Date       | CW        | Start      | End        | Break      | h [day]   | h [sum]   | Comment                            | 
 |------------|-----------|------------|------------|------------|-----------|-----------|------------------------------------|                  
@@ -141,6 +163,8 @@ Project: 128h + 42h = 170h
 | 2024/12/01 | 48        | 10:00      | 16:30      | 01:30      | 05:00     | 117:00     | LSTM model, clean environment     |
 | 2024/12/19 | 51        | 10:00      | 11:00      | 00:00      | 01:00     | 118:00     | LSTM model                        |
 | 2024/12/23 | 52        | 17:00      | 21:00      | 00:00      | 04:00     | 122:00     | Markdown                          |
-| 2024/12/24 | 52        | 10:00      | 16:00      | 00:00      | 06:00     | 128:00     | Clean code, Presentation          |
-| 2024/12/27 | 52        | 14:00      | 18:00      | 00:00      | 04:00     | 132:00     | Presentation                      |
-| **End of Project**                                                                                                         |
+| 2024/12/24 | 52        | 10:00      | 16:00      | 00:00      | 06:00     | 128:00     | Clean code, Com., Presentation    |
+| 2024/12/26 | 52        | 10:00      | 11:00      | 00:00      | 01:00     | 129:00     | Clean code, Com., Presentation    |
+| 2024/12/28 | 52        | 11:00      | 21:00      | 03:00      | 07:00     | 136:00     | Com., Presentation                |
+| 2024/12/29 | 52        | 10:00      | 18:00      | 02:00      | 06:00     | 142:00     | Com., Presentation                |
+| **End of Project**                                                                                                         
