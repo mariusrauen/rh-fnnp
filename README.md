@@ -111,6 +111,7 @@ https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html  <br>
     - predict_and_compare
     - train (wrapper for setup train_model)
     - evaluate_model
+    - analyze_metrics_by_period
     - get_user_choice
     - def get_dataset_choice
     - get_timestamp
@@ -134,7 +135,7 @@ Target: 6CP = 6 x 25h = 150h
 
 Lecture: CW37 (2024/09/09) until CW52 (2024/12/23) = 16 weeks with 3h/week = 48h - 6h (canceled lectures) = 42h
 
-Project: 136h + 42h = 178h 
+Project: 145h + 42h = 187h 
 
 | Date       | CW        | Start      | End        | Break      | h [day]   | h [sum]   | Comment                            | 
 |------------|-----------|------------|------------|------------|-----------|-----------|------------------------------------|                  
@@ -167,4 +168,5 @@ Project: 136h + 42h = 178h
 | 2024/12/26 | 52        | 10:00      | 11:00      | 00:00      | 01:00     | 129:00     | Clean code, Com., Presentation    |
 | 2024/12/28 | 52        | 11:00      | 21:00      | 03:00      | 07:00     | 136:00     | Com., Presentation                |
 | 2024/12/29 | 52        | 10:00      | 18:00      | 02:00      | 06:00     | 142:00     | Com., Presentation                |
+| 2024/12/30 | 52        | 10:00      | 13:00      | 00:00      | 03:00     | 145:00     | Com., Presentation                |
 | **End of Project**                                                                                                         

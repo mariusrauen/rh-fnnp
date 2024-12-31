@@ -261,11 +261,11 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 # -------------------------------------------------------------------------------------------------------------------------------- 
 
 # Make small dataset for testing
-size = 400
+'''size = 400
 X_train_eso = X_train_eso.iloc[:size]; X_train_ger = X_train_ger.iloc[:size]
 y_train_eso = y_train_eso.iloc[:size]; y_train_ger = y_train_ger.iloc[:size]
 X_eval_eso = X_eval_eso.iloc[:size]; X_eval_ger = X_eval_ger.iloc[:size]
-y_eval_eso = y_eval_eso.iloc[:size]; y_eval_ger = y_eval_ger.iloc[:size]
+y_eval_eso = y_eval_eso.iloc[:size]; y_eval_ger = y_eval_ger.iloc[:size]'''
 # ============================================================================================================================
 
 
@@ -273,22 +273,22 @@ y_eval_eso = y_eval_eso.iloc[:size]; y_eval_ger = y_eval_ger.iloc[:size]
 # ============================================================================================
 class ModelConfig: # Configuration class for the model
     def __init__(self): 
-        self.sequence_length = 48           # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
+        self.sequence_length = 64 #48           # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
         self.val_split = 0.25               # Split for modelling
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.hidden_size = 176              # Neurons in LSTM for each hidden layer
-        self.num_layers = 3                 # Number of hidden layers
-        self.batch_size = 56                # Number of sequences processed together in one iteration
+        self.hidden_size = 256  #208            # Neurons in LSTM for each hidden layer
+        self.num_layers = 2 #3                 # Number of hidden layers
+        self.batch_size = 32 #48                # Number of sequences processed together in one iteration
                                             # Each sequence has length sequence_length (e.g. 48)
                                             # Total batches = dataset_size / batch_size
                                             # e.g. (datapoints=100000) / (batch_size=32) = 3125 batches
-        self.learning_rate = 0.0012          # Learning rate for the optimizer
-        self.epochs = 24                    # One complete pass of all data to train
-        self.dropout = 0.12                  # TODO REMOVE DROPOUT FOR FINAL MODEL for regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
-        self.patience = 12                   # Number of epochs to wait for improvement before early stopping
-        self.grad_clip = 0.8         
-        self.scheduler_factor = 0.6         # Learning rate decay factor
-        self.scheduler_patience = 8         # Learning rate decay patience
+        self.learning_rate = 0.0018  #0.001   # Learning rate for the optimizer
+        self.epochs = 28                    # One complete pass of all data to train
+        self.dropout = 0.2   # 0.1                  # For regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
+        self.patience = 10 #12                  # Number of epochs to wait for improvement before early stopping
+        self.grad_clip = 0.6   # 0.8         
+        self.scheduler_factor = 0.4         # Learning rate decay factor
+        self.scheduler_patience = 6 # 8         # Learning rate decay patience
         self.output_size = 1
         self.num_threads = 6
                                             # residual connections?
@@ -442,16 +442,20 @@ def calculate_metrics(y_true, y_pred):
     da = np.mean(direction_true == direction_pred) * 100
     
     # Standard metrics
-    mse = mean_squared_error(y_true, y_pred)
-    rmse = np.sqrt(mse)
-    mae = mean_absolute_error(y_true, y_pred)
-    r2 = r2_score(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred) # Mean Squared Error
+    nmse = mse / (np.mean(y_true) ** 2) # Normalized MSE
+    smse = mse / np.var(y_true) # Scaled MSE
+    rmse = np.sqrt(mse) # Root Mean Squared Error
+    mae = mean_absolute_error(y_true, y_pred) # Mean Absolute Error
+    r2 = r2_score(y_true, y_pred) # R2 score is the proportion of the variance in the dependent variable that is predictable from the independent variable(s)
     
     return {
         'SMAPE': smape,
         'MASE': mase,
         'DA': da,
         'MSE': mse,
+        'NMSE': nmse,
+        'SMSE': smse,
         'RMSE': rmse,
         'MAE': mae,
         'R2': r2
@@ -600,10 +604,38 @@ def train_model(X_train, y_train, config, logger, model_dir):
             break
         # -------------------------------------------------------------------
 
+        if epoch == 0:
+            training_metrics_history = []
         # Calculate metrics every 10 epochs
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 5 == 0:
             train_metrics = calculate_metrics(train_true, train_preds)
             val_metrics = calculate_metrics(val_true, val_preds)
+
+            # -------------------------------------------------------------------
+            # Create results DataFrame for this epoch
+            train_results_df = pd.DataFrame({
+                'timestamp': X_train_split['ID'].iloc[config.sequence_length:len(train_true)+config.sequence_length],
+                'true_values': train_true,
+                'predictions': train_preds
+            })
+            
+            # Calculate periodic metrics and save to CSV
+            periodic_metrics = analyze_metrics_by_period(
+                train_results_df, 
+                model_dir, 
+                period='M',
+                prefix='train'
+            )
+            
+            # Add epoch information to metrics
+            periodic_metrics['epoch'] = epoch + 1
+            training_metrics_history.append(periodic_metrics)
+            
+            # Save the accumulated metrics history to CSV
+            metrics_history_df = pd.concat(training_metrics_history)
+            metrics_history_df.to_csv(model_dir / 'training_periodic_metrics_history.csv', index=False)
+            # -------------------------------------------------------------------
+
             logger.info("\nTraining Metrics:")
             for metric, value in train_metrics.items():
                 logger.info(f"{metric}: {value:.4f}")
@@ -786,7 +818,7 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
         all_predictions_original = y_scaler.inverse_transform(np.array(all_predictions).reshape(-1, 1)).flatten()
         
         # Plot all datac
-        step = 200
+        step = 400
         plt.plot(X_train['ID'][config.sequence_length::step], 
             all_true_original[config.sequence_length::step], 
             'g-', label='Actual Values (sampled)', linewidth=0.6)
@@ -989,7 +1021,7 @@ def evaluate_model(dataset_type: DatasetType, timestamp: str):
         # Create visualizations
         # Detailed view (last 6 points)
         plt.figure(figsize=(12, 8))
-        detail_df = results_df.tail(6)
+        detail_df = results_df.tail(10)
         formatted_timestamps = [ts.strftime('%d %H:%M') for ts in detail_df['timestamp']]
         
         plt.plot(range(len(detail_df)), detail_df['true_values'], 'b-o', 
@@ -1036,7 +1068,14 @@ def evaluate_model(dataset_type: DatasetType, timestamp: str):
         
         logger.info(f"Evaluation results saved to: {model_dir}")
         logger.info('='*80 + '\n')
-        
+
+        _ = analyze_metrics_by_period(
+            results_df, 
+            model_dir, 
+            period='M',
+            prefix='evaluation'
+        )
+
         return {
             'metrics': eval_metrics,
             'predictions': predictions_original,
@@ -1048,6 +1087,95 @@ def evaluate_model(dataset_type: DatasetType, timestamp: str):
         logger.error(f"Error during evaluation: {str(e)}")
         logger.info('='*80 + '\n')
         raise
+# ============================================================================================
+
+
+
+# ============================================================================================
+def analyze_metrics_by_period(results_df, model_dir, period='M', prefix='evaluation'):
+    """
+    Calculate metrics for different time periods with two separate plots.
+    
+    Args:
+        results_df: DataFrame with results
+        model_dir: Directory to save output files
+        period: Time period for grouping ('Y', 'M', 'Q', 'W')
+        prefix: Prefix for output files ('training' or 'evaluation')
+    """
+    # Create metrics directory if it doesn't exist
+    metrics_dir = model_dir / 'periodic_metrics'
+    metrics_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Rest of the grouping code remains the same
+    if period == 'Y':
+        results_df['period'] = results_df['timestamp'].dt.year
+        period_name = 'Year'
+    elif period == 'M':
+        results_df['period'] = results_df['timestamp'].dt.to_period('M')
+        period_name = 'Month'
+    elif period == 'Q':
+        results_df['period'] = results_df['timestamp'].dt.to_period('Q')
+        period_name = 'Quarter'
+    elif period == 'W':
+        results_df['period'] = results_df['timestamp'].dt.to_period('W')
+        period_name = 'Week'
+    
+    # Calculate metrics for each period
+    period_metrics = []
+    
+    for period_val, group in results_df.groupby('period'):
+        metrics = calculate_metrics(group['true_values'], group['predictions'])
+        metrics['NMSE'] = metrics['MSE'] / (np.mean(group['true_values']) ** 2)
+        metrics['SMSE'] = metrics['MSE'] / np.var(group['true_values'])
+        metrics['period'] = period_val
+        period_metrics.append(metrics)
+    
+    metrics_df = pd.DataFrame(period_metrics)
+    
+    # Save metrics to CSV in the metrics directory
+    csv_path = metrics_dir / f'{prefix}_periodic_metric_{period}_{datetime.now().strftime("%Y%m%d_%H%M")}.csv'
+    metrics_df.to_csv(csv_path, index=False)
+    
+    # Create visualization
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(15, 12))
+    
+    # Plot 1: Absolute metrics
+    absolute_metrics = ['RMSE', 'MAE']
+    for metric in absolute_metrics:
+        ax1.plot(range(len(metrics_df)), metrics_df[metric], 
+                marker='o', label=metric)
+    
+    ax1.set_title(f'{prefix.capitalize()} - Absolute Performance Metrics Over Time ({period_name}ly)')
+    ax1.set_xlabel(period_name)
+    ax1.set_ylabel('Metric Value')
+    ax1.legend()
+    ax1.grid(True)
+    ax1.set_xticks(range(len(metrics_df)))
+    ax1.set_xticklabels(metrics_df['period'], rotation=45)
+    
+    # Plot 2: Normalized metrics
+    normalized_metrics = ['MASE', 'R2', 'NMSE', 'SMSE']
+    for metric in normalized_metrics:
+        ax2.plot(range(len(metrics_df)), metrics_df[metric], 
+                marker='o', label=metric)
+    
+    ax2.set_title(f'{prefix.capitalize()} - Normalized Performance Metrics Over Time ({period_name}ly)')
+    ax2.set_xlabel(period_name)
+    ax2.set_ylabel('Metric Value (0-1 Scale)')
+    ax2.legend()
+    ax2.grid(True)
+    ax2.set_xticks(range(len(metrics_df)))
+    ax2.set_xticklabels(metrics_df['period'], rotation=45)
+    ax2.set_ylim(-0.1, 1.1)
+    
+    plt.tight_layout()
+
+    # Save plot in the metrics directory
+    plot_path = metrics_dir / f'{prefix}_periodic_metric_{period}_{datetime.now().strftime("%Y%m%d_%H%M")}.png'
+    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    return metrics_df
 # ============================================================================================
 
 
