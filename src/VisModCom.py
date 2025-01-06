@@ -257,42 +257,40 @@ from torch.utils.data import Dataset, DataLoader
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from tqdm import tqdm
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-
-# -------------------------------------------------------------------------------------------------------------------------------- 
-
-# Make small dataset for testing
-'''size = 400
-X_train_eso = X_train_eso.iloc[:size]; X_train_ger = X_train_ger.iloc[:size]
-y_train_eso = y_train_eso.iloc[:size]; y_train_ger = y_train_ger.iloc[:size]
-X_eval_eso = X_eval_eso.iloc[:size]; X_eval_ger = X_eval_ger.iloc[:size]
-y_eval_eso = y_eval_eso.iloc[:size]; y_eval_ger = y_eval_ger.iloc[:size]'''
 # ============================================================================================================================
 
 
 
-# ============================================================================================
+# ============================================================================================================================
+# Make small dataset for testing
+'''size = 1200
+X_train_eso = X_train_eso.iloc[:size]; X_train_ger = X_train_ger.iloc[:size]
+y_train_eso = y_train_eso.iloc[:size]; y_train_ger = y_train_ger.iloc[:size]
+X_eval_eso = X_eval_eso.iloc[:size]; X_eval_ger = X_eval_ger.iloc[:size]
+y_eval_eso = y_eval_eso.iloc[:size]; y_eval_ger = y_eval_ger.iloc[:size]'''
+
+# ----------------------------------------------------------------------------------------------------------------------------
+
 class ModelConfig: # Configuration class for the model
     def __init__(self): 
-        self.sequence_length = 64 #48           # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
+        self.sequence_length = 64   #GER:48 # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
         self.val_split = 0.25               # Split for modelling
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.hidden_size = 256  #208            # Neurons in LSTM for each hidden layer
-        self.num_layers = 2 #3                 # Number of hidden layers
-        self.batch_size = 32 #48                # Number of sequences processed together in one iteration
+        self.hidden_size = 208  #GER:192    # Neurons in LSTM for each hidden layer
+        self.num_layers = 3                 # Number of hidden layers
+        self.batch_size = 64 #GER: 48       # Number of sequences processed together in one iteration
                                             # Each sequence has length sequence_length (e.g. 48)
                                             # Total batches = dataset_size / batch_size
                                             # e.g. (datapoints=100000) / (batch_size=32) = 3125 batches
-        self.learning_rate = 0.0018  #0.001   # Learning rate for the optimizer
-        self.epochs = 28                    # One complete pass of all data to train
-        self.dropout = 0.2   # 0.1                  # For regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
-        self.patience = 10 #12                  # Number of epochs to wait for improvement before early stopping
-        self.grad_clip = 0.6   # 0.8         
-        self.scheduler_factor = 0.4         # Learning rate decay factor
-        self.scheduler_patience = 6 # 8         # Learning rate decay patience
-        self.output_size = 1
-        self.num_threads = 6
-                                            # residual connections?
-                                            # batch normalization?
+        self.learning_rate = 0.0005 #GER0.001  # Learning rate for the optimizer
+        self.epochs = 14       #GER 28      # One complete pass of all data to train
+        self.dropout = 0.3   #GER: 0.1      # For regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
+        self.patience = 12   #GER: 6        # Number of epochs to wait for improvement before early stopping
+        self.grad_clip = 0.3   #GER:0.4     # Gradient clipping to prevent exploding gradients 
+        self.scheduler_factor = 0.4 #GER:0.6# Learning rate decay factor
+        self.scheduler_patience = 8 #GER:4  # Learning rate decay patience
+        self.output_size = 1                # Number of output neurons
+        self.num_threads = 6                # Number of threads for data loading
 # ============================================================================================
 
 
@@ -514,7 +512,7 @@ def train_model(X_train, y_train, config, logger, model_dir):
     
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
-    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=config.scheduler_factor, patience=config.scheduler_patience, verbose=True)
+    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=config.scheduler_factor, patience=config.scheduler_patience) #verbose=True
     
     # Init lists for losses
     train_losses = []

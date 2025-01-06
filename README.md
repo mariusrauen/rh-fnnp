@@ -130,12 +130,115 @@ This file contains the steps for Visualization, Modeling and Communication.
 ![Flow chart VisModCom](./data/figures/vismodcom2.png)
 ![Flow chart VisModCom](./data/figures/vismodcom3.png)
 
+# **PARAMETERS**
+**sequence_length** <br>
+Datapoints for one prediction. Set LSTM cells processed in parallel <br>
+Increase: Get long term patterns, learn historical pattern, high memory usage <br>
+Decrease: Faster training, may miss long term patterns, good for short term dependence data
+
+**batch_size** <br>
+Sequences processed together in one iteration <br>
+Increase: Stable gradient estimates, good parallel processing, higher memory usage <br>
+Decrease: Frequent parameter update, more noise in training, less memory usage
+
+**hidden_size** <br>
+Number of units in one layer <br>
+Increase: Capacity for complex patterns, higher memory usage <br>
+Decrease: Faster training, less risk of overfitting, risk of underfitting
+
+**num_layers** <br>
+Number of hidden layers <br>
+Increase: Can learn hierarchical features, high complexity, vanishing/exploding gradients <br>
+Decrease: Faster Training, less risk of overfitting, reduce complexity
+
+**learning_rate** <br>
+Impacts the steps for the gradient <br>
+Increase: Fast initial learning, risk of overshooting optima, risk of training instability <br>
+Decrease: More stable training, better final convergence, slower initial training
+
+**grad_clip** <br>
+Limits the gradient step <br>
+Increase: Larger parameter updates, faster training, risk of instability <br>
+Decrease: More stable training, slower training, good handling of exploding gradients
+
+**epochs** <br>
+An epoch corresponds to one pass through the model <br>
+Increase: More time to find good parameters, good chance of convergence, risk of overfitting <br>
+Decrease: Faster training, risk of stop before good solution, less chance of overfitting
+
+**dropout** <br>
+Removes units in the hidden_size <br>
+Increase: Stronger regularization, better generalization, can slow down learning <br>
+Decrease: Faster learning, less regularization, risk of overfitting
+
+**patience** <br>
+Number of epochs to wait for improvement before stopping <br>
+Increase: Chance to escape plateaus, slower training, sisk of wasting resources <br>
+Decrease: Early stopping on plateaus, faster training, risk of missing late improvements
+
+**scheduler_patience** <br>
+Defines when fine tuning at local minima starts <br>
+Increase: Longer current learning rate, less frequent rate change, may waste time on plateaus <br>
+Decrease: Faster adaption of learning rate, more aggressive optimization, may reduce to quickly if low
+
+**scheduler_factor** <br>
+Helps to fine tune the model in a local minima. Set grad decreasing <br>
+Increase: Gentle learning rate decay, slower adaption to plateaus, stable training <br>
+Decrease: Faster learning rate decay, faster adaption to plateaus, can escape plateaus better
+
+# **METRICS**
+**MSE (Mean Squared Error)**<br>
+Average of squared differences between predictions and actual values, penalizing larger errors more heavily<br>
+Range 0...$\infty$, the lower the better <br>
+$MSE = \frac{1}{n} \cdot \sum (actual-predicted)^2$
+
+**RMSE (Root Mean Square Error)** <br>
+Square root of MSE, giving error in same units as original data <br>
+Range 0...$\infty$, the lower the better, same unit as data <br>
+$RMSE = \sqrt{MSE}$
+
+**NMSE (Normalized Mean Square Error)**<br>
+MSE normalized by the square of the mean, making it scale-independent <br>
+Range 0...$\infty$, the lower the better <br>
+$NMSE = \frac{MSE}{mean(actual)^2}$
+
+**SMSE (Standardized Mean Square Error)** <br>
+MSE normalized by variance, showing error relative to data variability <br>
+Range 0...$\infty$, the lower the better <br>
+$SMSE = \frac{MSE}{variance(actual)}$
+
+**MAE (Mean Absolute Error)** <br>
+verage absolute difference between predictions and actual values, treating all errors equally <br>
+Range 0...$\infty$, the lower the better, same unit as data <br>
+$ MAE = \frac{1}{n} \cdot \sum |actual-predicted|$
+
+**MASE (Mean Absolute Scaled Error)** <br>
+Compares your model's performance against a naive forecast (using "yesterday's value" as prediction) <br>
+Range 0...$\infty$, the lower the better, <1 means better than naive forecast<br>
+$MASE = \frac{MAE}{mean(|actual_t-actual_{t-1}|)}$ 
+
+**SMAPE (Symmetric Mean Absolute Percentage Error)** <br>
+Measures percentage error symmetrically, treating over and under-predictions equally <br>
+Range: 0% to 100%, the lower the better <br>
+$SMAPE = \frac{1}{n} \cdot \sum \frac{(|actual-predicted|)\cdot 2}{(|actual|+|predicted|)}\cdot 100$
+
+**R² (R-squared)** <br>
+Proportion of variance in the target variable that's predictable from the model <br>
+Range: $-\infty$ to 1, the higher the better (1 is perfect prediction) <br>
+$R^2 = 1 - \frac{\sum (actual-predicted)^2}{\sum (actual - mean)^2}$
+
+**DA (Directional Accuracy)** <br>
+Shows how often your model correctly predicts whether the value will go up or down <br>
+Range: 0% to 100%, the higher the better (> 50% better than random) <br>
+Percentage of correctly predicted directions of change
+
+
 # **TIME**
 Target: 6CP = 6 x 25h = 150h
 
 Lecture: CW37 (2024/09/09) until CW52 (2024/12/23) = 16 weeks with 3h/week = 48h - 6h (canceled lectures) = 42h
 
-Project: 145h + 42h = 187h 
+Project: 147h + 42h = 189h 
 
 | Date       | CW        | Start      | End        | Break      | h [day]   | h [sum]   | Comment                            | 
 |------------|-----------|------------|------------|------------|-----------|-----------|------------------------------------|                  
@@ -169,4 +272,5 @@ Project: 145h + 42h = 187h
 | 2024/12/28 | 52        | 11:00      | 21:00      | 03:00      | 07:00     | 136:00     | Com., Presentation                |
 | 2024/12/29 | 52        | 10:00      | 18:00      | 02:00      | 06:00     | 142:00     | Com., Presentation                |
 | 2024/12/30 | 52        | 10:00      | 13:00      | 00:00      | 03:00     | 145:00     | Com., Presentation                |
+| 2025/01/03 | 01        | 18:00      | 20:00      | 00:00      | 02:00     | 147:00     | Com., Presentation                |
 | **End of Project**                                                                                                         
