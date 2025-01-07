@@ -273,24 +273,24 @@ y_eval_eso = y_eval_eso.iloc[:size]; y_eval_ger = y_eval_ger.iloc[:size]'''
 
 class ModelConfig: # Configuration class for the model
     def __init__(self): 
-        self.sequence_length = 64   #GER:48 # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
-        self.val_split = 0.25               # Split for modelling
+        self.sequence_length = 48   #ESO:64     GER:48  # Number of datapoints for one prediction, used timesteps for one prediction, defines how many LSTM cells are processed in parallel (1 datapoints=1 LSTM cell)
+        self.val_split = 0.25                           # Split for modelling
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.hidden_size = 208  #GER:192    # Neurons in LSTM for each hidden layer
-        self.num_layers = 3                 # Number of hidden layers
-        self.batch_size = 64 #GER: 48       # Number of sequences processed together in one iteration
+        self.hidden_size = 192  #ESO:208   GER:192       # Neurons in LSTM for each hidden layer
+        self.num_layers = 3                              # Number of hidden layers
+        self.batch_size = 48 #ESO: 64  GER:48            # Number of sequences processed together in one iteration
                                             # Each sequence has length sequence_length (e.g. 48)
                                             # Total batches = dataset_size / batch_size
                                             # e.g. (datapoints=100000) / (batch_size=32) = 3125 batches
-        self.learning_rate = 0.0005 #GER0.001  # Learning rate for the optimizer
-        self.epochs = 14       #GER 28      # One complete pass of all data to train
-        self.dropout = 0.3   #GER: 0.1      # For regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
-        self.patience = 12   #GER: 6        # Number of epochs to wait for improvement before early stopping
-        self.grad_clip = 0.3   #GER:0.4     # Gradient clipping to prevent exploding gradients 
-        self.scheduler_factor = 0.4 #GER:0.6# Learning rate decay factor
-        self.scheduler_patience = 8 #GER:4  # Learning rate decay patience
-        self.output_size = 1                # Number of output neurons
-        self.num_threads = 6                # Number of threads for data loading
+        self.learning_rate = 0.001 #ESO: 0.0005 GER: 0.001# Learning rate for the optimizer
+        self.epochs = 28       #ESO:14  GER:28            # One complete pass of all data to train
+        self.dropout = 0.1   #ESO:0.3 GER:0.1             # For regularization: randomly remove a fraction of the connections in your network for any givin training example to learn redundant information
+        self.patience = 6   #ESO: 12 GER:6                # Number of epochs to wait for improvement before early stopping
+        self.grad_clip = 0.4   #ESO:0.3 GER: 0.4          # Gradient clipping to prevent exploding gradients 
+        self.scheduler_factor = 0.6 #ESO:0.4 GER:0.6      # Learning rate decay factor
+        self.scheduler_patience = 4 #ESO:8 GER:4          # Learning rate decay patience
+        self.output_size = 1                              # Number of output neurons
+        self.num_threads = 2                              # Number of threads for data loading
 # ============================================================================================
 
 
@@ -765,9 +765,10 @@ def predict_and_compare(model, X_train, y_train, y_scaler, config, logger, model
         
         if len(true_values_original) > 1:
             prev_true = true_values_original[-2]
-            direction_match = ((final_pred > final_true) == (final_true > prev_true))
+            prev_pred = predicted_values_original[-2]
+            #direction_match = ((final_pred > final_true) == (final_true > prev_true))
+            direction_match = ((final_pred > prev_pred) == (final_true > prev_true))
             logger.info(f"Direction Match: {'✓' if direction_match else '✗'}")
-        
 
         # -------------------------------------------------------------------
         # First plot (detailed view)
@@ -982,8 +983,15 @@ def evaluate_model(dataset_type: DatasetType, timestamp: str):
         }).sort_values('timestamp')
 
         # Calculate metrics
-        eval_metrics = calculate_metrics(results_df['true_values'], results_df['predictions'])
-        
+        #eval_metrics = calculate_metrics(results_df['true_values'], results_df['predictions'])
+        eval_metrics = calculate_metrics(all_true_values, all_predictions)  # Using normalized values directly
+        predictions_original = y_scaler.inverse_transform(
+            np.array(all_predictions).reshape(-1, 1)
+        ).flatten()
+
+        true_values_original = y_scaler.inverse_transform(
+            np.array(all_true_values).reshape(-1, 1)
+        ).flatten()
 
         logger.info(f"\nEvaluation performed at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"Average evaluation loss: {avg_eval_loss:.4f}")
@@ -1071,7 +1079,7 @@ def evaluate_model(dataset_type: DatasetType, timestamp: str):
             results_df, 
             model_dir, 
             period='M',
-            prefix='evaluation'
+            prefix='evaluation' 
         )
 
         return {
@@ -1103,6 +1111,9 @@ def analyze_metrics_by_period(results_df, model_dir, period='M', prefix='evaluat
     # Create metrics directory if it doesn't exist
     metrics_dir = model_dir / 'periodic_metrics'
     metrics_dir.mkdir(parents=True, exist_ok=True)
+
+    # Transform back to normalized values for metrics
+    results_df['period'] = results_df['timestamp'].dt.to_period(period)
     
     # Rest of the grouping code remains the same
     if period == 'Y':

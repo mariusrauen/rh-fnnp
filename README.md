@@ -131,6 +131,9 @@ This file contains the steps for Visualization, Modeling and Communication.
 ![Flow chart VisModCom](./data/figures/vismodcom3.png)
 
 # **PARAMETERS**
+
+**INPUT IN VisModCom.py AROUND LINE 265 TO 295**
+
 **sequence_length** <br>
 Datapoints for one prediction. Set LSTM cells processed in parallel <br>
 Increase: Get long term patterns, learn historical pattern, high memory usage <br>
@@ -188,9 +191,9 @@ Decrease: Faster learning rate decay, faster adaption to plateaus, can escape pl
 
 # **METRICS**
 **MSE (Mean Squared Error)**<br>
-Average of squared differences between predictions and actual values, penalizing larger errors more heavily<br>
-Range 0...$\infty$, the lower the better <br>
-$MSE = \frac{1}{n} \cdot \sum (actual-predicted)^2$
+**Average of squared differences between predictions and actual values, penalizing larger errors more heavily**<br>
+**Range 0...$\infty$, the lower the better** <br>
+**$MSE = \frac{1}{n} \cdot \sum (actual-predicted)^2$**
 
 **RMSE (Root Mean Square Error)** <br>
 Square root of MSE, giving error in same units as original data <br>
@@ -208,9 +211,9 @@ Range 0...$\infty$, the lower the better <br>
 $SMSE = \frac{MSE}{variance(actual)}$
 
 **MAE (Mean Absolute Error)** <br>
-verage absolute difference between predictions and actual values, treating all errors equally <br>
-Range 0...$\infty$, the lower the better, same unit as data <br>
-$ MAE = \frac{1}{n} \cdot \sum |actual-predicted|$
+**Average absolute difference between predictions and actual values, treating all errors equally** <br>
+**Range 0...$\infty$, the lower the better, same unit as data** <br>
+**$ MAE = \frac{1}{n} \cdot \sum |actual-predicted|$**
 
 **MASE (Mean Absolute Scaled Error)** <br>
 Compares your model's performance against a naive forecast (using "yesterday's value" as prediction) <br>
@@ -223,14 +226,14 @@ Range: 0% to 100%, the lower the better <br>
 $SMAPE = \frac{1}{n} \cdot \sum \frac{(|actual-predicted|)\cdot 2}{(|actual|+|predicted|)}\cdot 100$
 
 **R² (R-squared)** <br>
-Proportion of variance in the target variable that's predictable from the model <br>
-Range: $-\infty$ to 1, the higher the better (1 is perfect prediction) <br>
-$R^2 = 1 - \frac{\sum (actual-predicted)^2}{\sum (actual - mean)^2}$
+**Proportion of variance in the target variable that's predictable from the model** <br>
+**Range: $-\infty$ to 1, the higher the better (1 is perfect prediction)** <br>
+**$R^2 = 1 - \frac{\sum (actual-predicted)^2}{\sum (actual - mean)^2}$**
 
 **DA (Directional Accuracy)** <br>
-Shows how often your model correctly predicts whether the value will go up or down <br>
-Range: 0% to 100%, the higher the better (> 50% better than random) <br>
-Percentage of correctly predicted directions of change
+**Shows how often your model correctly predicts whether the value will go up or down** <br>
+**Range: 0% to 100%, the higher the better (> 50% better than random)** <br>
+**Percentage of correctly predicted directions of change**
 
 
 # **TIME**
